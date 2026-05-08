@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>高玉企業 — 業務報價系統</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;font-size:12px;background:#F4F6FA;color:#1a1a2e;height:100vh;display:flex;flex-direction:column;overflow:hidden}
+.hdr{background:linear-gradient(135deg,#013121,#2A5240);color:#fff;padding:10px 18px;display:flex;align-items:center;gap:12px;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+.hdr-logo{font-size:17px;font-weight:700}.hdr-sub{font-size:10px;opacity:.7;margin-top:1px}
+.hdr-badge{margin-left:auto;background:rgba(255,255,255,.15);border-radius:6px;padding:4px 12px;text-align:center;font-size:11px}
+.hdr-badge strong{display:block;font-size:15px;font-weight:700}
+.lockbar{background:#FFF9E6;border-bottom:1px solid #F0D060;color:#7A5000;padding:5px 18px;font-size:11px;text-align:center;flex-shrink:0}
+.main{display:flex;flex:1;overflow:hidden}
+/* LEFT */
+.left{display:flex;flex-direction:column;width:60%;border-right:1px solid #dde2ec;background:#fff;overflow:hidden}
+.col-toggles{padding:7px 12px;background:#F0F4FA;border-bottom:1px solid #e2e8f0;display:flex;gap:6px;flex-wrap:wrap;align-items:center;flex-shrink:0}
+.tgl-lbl{font-size:10px;font-weight:700;color:#4a5568;margin-right:4px;white-space:nowrap}
+.tgl{display:inline-flex;align-items:center;gap:4px;cursor:pointer;font-size:11px;color:#4a5568;padding:2px 8px;border-radius:4px;border:1px solid #ccd4e0;background:#fff;user-select:none}
+.tgl:hover{background:#EEF1F8}.tgl.on{background:#E8EEFF;border-color:#013121;color:#013121;font-weight:700}
+.tgl input{width:13px;height:13px;cursor:pointer;accent-color:#013121}
+.filters{padding:8px 12px;border-bottom:1px solid #eee;display:flex;gap:7px;flex-wrap:wrap;align-items:flex-end;background:#F8F9FC;flex-shrink:0}
+.filters label{font-size:10px;color:#666;display:block;margin-bottom:2px}
+.filters input,.filters select{padding:4px 8px;border:1px solid #ccd4e0;border-radius:5px;font-size:11px;background:#fff;color:#222}
+.filters input{width:135px}
+.sales-scope{padding:7px 12px;background:#FFF9E6;border-bottom:1px solid #F0D060;display:flex;gap:8px;align-items:center;flex-shrink:0}
+.sales-scope label{font-size:11px;font-weight:700;color:#013121;white-space:nowrap}
+.sales-scope select{padding:5px 8px;border:1.5px solid #013121;border-radius:5px;font-size:12px;background:#fff;color:#1a1a2e;font-weight:600}
+.scope-note{font-size:10px;color:#7A5000}
+.f-cnt{font-size:10px;color:#888;align-self:center;margin-left:auto}
+.prod-wrap{flex:1;overflow-y:auto}
+table{width:100%;border-collapse:collapse;font-size:11px}
+th{position:sticky;top:0;background:#EEF1F8;font-size:10px;font-weight:600;color:#4a5568;padding:5px 8px;text-align:left;border-bottom:2px solid #dde2ec;white-space:nowrap;z-index:2}
+td{padding:5px 8px;border-bottom:1px solid #f0f2f7;vertical-align:middle}
+tr.row:hover td{background:#EDF2FF;cursor:pointer}
+tr.row.sel td{background:#D6E8FF!important}
+.b{display:inline-block;padding:1px 6px;border-radius:99px;font-size:10px;font-weight:600}
+.bf{background:#E6F1FB;color:#1a56db}.bn{background:#f0f0f0;color:#555}
+.bpx{background:#EDE7F6;color:#5E35B1}.bml{background:#FFF0E6;color:#CC4400}
+.mp{color:#1a56db;font-weight:600}.mp-na{color:#bbb;font-size:10px}
+/* RIGHT */
+.right{display:flex;flex-direction:column;width:40%;background:#F8F9FC;overflow:hidden}
+.qt-hdr{padding:10px 14px;border-bottom:1px solid #dde2ec;background:#fff;flex-shrink:0}
+.qt-hdr h3{font-size:13px;font-weight:700;color:#013121;margin-bottom:8px}
+/* 客戶區 */
+.cust-bar{background:#EEF4FF;border-radius:7px;padding:8px 10px;margin-bottom:8px}
+.cust-row{display:flex;align-items:center;gap:8px}
+.cust-row label{font-size:11px;font-weight:700;color:#013121;white-space:nowrap}
+.cust-row select{flex:1;padding:5px 8px;border:1.5px solid #013121;border-radius:5px;font-size:12px;background:#fff;color:#1a1a2e;font-weight:600}
+/* 其他客戶輸入區 */
+.other-fields{margin-top:8px;padding-top:8px;border-top:1px dashed #b8ccee;display:none;gap:8px;flex-direction:column}
+.other-fields.show{display:flex}
+.other-fields .row{display:flex;gap:8px;align-items:center}
+.other-fields label{font-size:10px;color:#013121;font-weight:700;white-space:nowrap;width:72px}
+.other-fields input{flex:1;padding:5px 8px;border:1.5px solid #013121;border-radius:5px;font-size:12px;background:#fff}
+.other-fields input:focus{outline:2px solid #013121;outline-offset:1px}
+.other-fields .hint{font-size:10px;color:#888;margin-top:2px}
+/* 美廉社雙選 */
+.pay-choice{background:#fff;border:1.5px solid #013121;border-radius:8px;padding:8px 10px;margin-bottom:8px;display:none}
+.pay-choice label{font-size:11px;font-weight:600;color:#013121;display:block;margin-bottom:6px}
+.pay-choice .opts{display:flex;gap:8px}
+.pay-choice .opt{padding:5px 16px;border:1.5px solid #ccd4e0;border-radius:99px;cursor:pointer;font-size:12px;font-weight:600;background:#fff;transition:all .15s}
+.pay-choice .opt:hover{border-color:#013121;background:#EEF4FF}
+.pay-choice .opt.active{border-color:#013121;background:#013121;color:#fff}
+/* Meta */
+.qt-meta{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.qt-meta .f label{font-size:10px;color:#666;display:block;margin-bottom:2px}
+.qt-meta .f input,.qt-meta .f select{width:100%;padding:4px 8px;border:1px solid #ccd4e0;border-radius:5px;font-size:11px;background:#fff}
+.span2{grid-column:1/-1}
+/* Body */
+.qt-body{flex:1;overflow-y:auto;padding:8px 12px}
+.qt-bh{font-size:10px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+.qi{background:#fff;border:1px solid #dde2ec;border-radius:8px;padding:9px 11px;margin-bottom:7px;position:relative;animation:fi .15s ease}
+.qi.err{border-color:#FC8181;background:#FFF5F5}
+.qi-rm{position:absolute;top:7px;right:9px;background:none;border:none;color:#ccc;cursor:pointer;font-size:15px;line-height:1;padding:2px 4px}
+.qi-rm:hover{color:#E53E3E}
+.qi-name{font-weight:700;font-size:12px;margin-bottom:2px;padding-right:20px}
+.qi-meta{font-size:10px;color:#888;margin-bottom:7px;line-height:1.8}
+.tag{display:inline-block;background:#EEF1F8;border-radius:3px;padding:0 5px;margin-right:3px;color:#555;font-weight:600}
+.tag.pay-tag{background:#E8EEFF;color:#013121;font-weight:700}
+.qi-row{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:4px}
+.qi-row label{font-size:10px;color:#666;white-space:nowrap}
+.qi-row input{padding:4px 7px;border:1px solid #ccd4e0;border-radius:5px;font-size:12px;text-align:right}
+.qi-row select{padding:4px 7px;border:1px solid #ccd4e0;border-radius:5px;font-size:11px;background:#fff}
+.iw{width:75px}.iwp{width:100px}
+.err-inp{border-color:#FC8181!important;background:#FFF5F5!important}
+.qi-cur{font-size:11px;color:#888}
+.qi-floor{font-size:10px;color:#718096;margin-left:auto;white-space:nowrap}
+.qi-err{font-size:10px;color:#E53E3E;margin-top:3px}
+/* Footer */
+.qt-foot{padding:10px 14px;border-top:1px solid #dde2ec;background:#fff;flex-shrink:0}
+.btn-row{display:flex;gap:8px}
+.btn{padding:8px 14px;border:none;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;transition:all .15s}
+.btn-p{background:#013121;color:#fff;flex:1}.btn-p:hover{background:#2A5240}.btn-p:disabled{background:#a0aec0;cursor:not-allowed}
+.btn-o{background:#fff;color:#013121;border:1.5px solid #013121}.btn-o:hover{background:#EEF4FF}
+.empty{text-align:center;padding:36px 20px;color:#bbb;font-size:12px}
+@keyframes fi{from{opacity:0;transform:translateY(-3px)}to{opacity:1;transform:none}}
+@media print{.left,.hdr,.lockbar{display:none!important}.right{width:100%!important;background:#fff!important;height:auto!important}.btn-row,.qi-rm,.cust-bar,.pay-choice{display:none!important}}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <div style="display:flex;align-items:center"><img src="data:image/png;base64,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" style="height:52px;width:52px;border-radius:8px;margin-right:12px;flex-shrink:0" alt="Golden Jade Terre"><div><div class="hdr-logo">Golden Jade Terre 高玉企業</div><div class="hdr-sub">業務報價系統 2026-05-08</div></div></div>
+  <div class="hdr-badge"><strong id="pT">—</strong><span> 筆產品</span></div>
+</div>
+<div class="lockbar">🔒 本系統不含成本資料。低於最低報價底限時系統會警告並鎖定送出。</div>
+<div class="main">
+  <!-- LEFT -->
+  <div class="left">
+    <div class="col-toggles">
+      <span class="tgl-lbl">顯示欄位：</span>
+      <label class="tgl on" id="t-ean"><input type="checkbox" checked onchange="togCol('ean',this.checked)"> EAN條碼</label>
+      <label class="tgl on" id="t-cq"><input type="checkbox" checked onchange="togCol('cq',this.checked)"> 箱入數</label>
+      <label class="tgl on" id="t-cp"><input type="checkbox" checked onchange="togCol('cp',this.checked)"> 每板箱數</label>
+      <label class="tgl" id="t-bbd"><input type="checkbox" onchange="togCol('bbd',this.checked)"> BBD(天)</label>
+      <label class="tgl on" id="t-inc"><input type="checkbox" checked onchange="togCol('inc',this.checked)"> 交易條件</label>
+      <label class="tgl on" id="t-pay"><input type="checkbox" checked onchange="togCol('pay',this.checked)"> 付款條件</label>
+      <label class="tgl" id="t-stat"><input type="checkbox" onchange="togCol('stat',this.checked)"> 狀態</label>
+    </div>
+    <div class="sales-scope">
+      <label>業務員</label>
+      <select id="salesRep" onchange="changeSalesRep()">
+        <option value="Tina Huang">Tina Huang</option>
+        <option value="Tina Kao">Tina Kao</option>
+        <option value="Noah Tseng">Noah Tseng</option>
+      </select>
+      <span class="scope-note" id="scopeNote">全部產品</span>
+    </div>
+    <div class="filters">
+      <div><label>搜尋</label><input type="text" id="fq" placeholder="品名/供應商/EAN..." oninput="fil()"></div>
+      <div><label>型態</label><select id="ftype" onchange="fil()"><option value="">全部</option><option>常溫</option><option>冷凍</option></select></div>
+      <div><label>生產國</label><select id="fctry" onchange="fil()"><option value="">全部</option></select></div>
+      <div><label>供應商</label><select id="fsup" onchange="fil()"><option value="">全部</option></select></div>
+      <div><label>狀態</label><select id="fst" onchange="fil()"><option value="">全部</option><option>已進口</option><option>郵件新增</option><option>PX Mart提案</option></select></div>
+      <div><label>適用通路</label><select id="fch" onchange="fil()"><option value="">全部</option><option>全通路</option><option>PX Mart</option><option>PX Mart / 全通路</option><option>美廉社 / 全通路</option></select></div>
+      <div><label>產品類別</label><select id="fcat" onchange="fil()"><option value="">全部</option><option>乳製品</option><option>其他食品</option><option>冰淇淋</option><option>冷凍Pizza</option><option>冷凍烘焙</option><option>冷凍蔬果</option><option>冷凍薯類/點心</option><option>即飲茶</option><option>啤酒</option><option>堅果/乾果</option><option>巧克力</option><option>松露製品</option><option>果汁</option><option>果醬</option><option>植物奶</option><option>植物油</option><option>椰子水</option><option>橄欖油</option><option>機能飲料</option><option>氣泡飲料</option><option>沙拉醬</option><option>泡麵</option><option>洋芋片</option><option>海苔</option><option>番茄製品</option><option>節慶糕點</option><option>義大利麵/燉飯</option><option>花草茶</option><option>葡萄酒</option><option>酪梨油</option><option>醃漬品</option><option>醋</option><option>零食</option><option>非食品</option><option>餅乾</option><option>香料</option><option>魚類零食</option></select></div>
+      <span class="f-cnt" id="fcnt"></span>
+    </div>
+    <div class="prod-wrap"><table><thead><tr>
+      <th>型態</th><th>中文品名</th><th>規格</th><th>生產國</th><th>供應商</th>
+      <th id="h-ean">EAN條碼</th>
+      <th id="h-cq" style="text-align:right">箱入數</th>
+      <th id="h-cp" style="text-align:right">每板箱數</th>
+      <th id="h-bbd" style="text-align:right;display:none">BBD(天)</th>
+      <th id="h-inc">交易條件</th>
+      <th id="h-pay">付款條件</th>
+      <th style="text-align:right">最低報價</th>
+      <th>幣別</th>
+      <th id="h-stat" style="display:none">狀態</th>
+    </tr></thead><tbody id="pb"></tbody></table></div>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="right">
+    <div class="qt-hdr">
+      <h3>📋 報價單</h3>
+
+      <!-- 客戶選擇區 -->
+      <div class="cust-bar">
+        <div class="cust-row">
+          <label>🏪 客戶</label>
+          <select id="custSel" onchange="selCust(this.value)">
+            <option value="">— 選擇客戶 —</option>
+            <option value="星巴克">⭐ 星巴克</option>
+            <option value="家福 (Carrefour)">🛒 家福 (Carrefour)</option>
+            <option value="台灣生活良好">🌿 台灣生活良好</option>
+            <option value="美廉社">🏪 美廉社</option>
+            <option value="東森">📺 東森</option>
+            <option value="桂冠">🍃 桂冠</option>
+            <option value="__other__">✏️ 其他（手動輸入）</option>
+          </select>
+        </div>
+
+        <!-- 其他：手動輸入欄 -->
+        <div class="other-fields" id="otherFields">
+          <div class="row">
+            <label>客戶名稱</label>
+            <input type="text" id="otherName" placeholder="輸入客戶 / 採購方名稱" oninput="syncOtherName()">
+          </div>
+          <div class="row">
+            <label>付款條件</label>
+            <input type="text" id="otherPay" placeholder="例：月結45天、BL30天、T/T 60 days…" oninput="syncOtherPay()">
+          </div>
+          <div class="hint">輸入後會自動同步至下方欄位及所有品項</div>
+        </div>
+      </div>
+
+      <!-- TWD 模式提示 -->
+      <div id="curModeBar" style="display:none;margin-top:6px;background:#E6F1FB;border:1px solid #2C4770;border-radius:6px;padding:6px 10px;font-size:11px;color:#185FA5">
+        <b>🇹🇼 台幣報價模式</b>：此客戶以 <b>TWD</b> 報價。
+        各品項交易條件與成本一致（唯讀）。Europastry/Feast 已計算台幣底限（🔒），其他品項底限為外幣參考，請自行換算。
+      </div>
+
+      <!-- 美廉社雙選 -->
+      <div class="pay-choice" id="payChoice">
+        <label>美廉社 — 選擇付款條件：</label>
+        <div class="opts">
+          <div class="opt active" onclick="pickPay('BL 60天',this)">BL 60天</div>
+          <div class="opt" onclick="pickPay('BL 45天',this)">BL 45天</div>
+        </div>
+      </div>
+
+      <div class="qt-meta">
+        <div class="f span2">
+          <label>客戶名稱 *</label>
+          <input type="text" id="cl" placeholder="採購方 / 客戶名稱">
+        </div>
+        <div class="f">
+          <label>報價幣別</label>
+          <select id="qcur" onchange="renTotal()">
+            <option>USD</option><option>EUR</option><option>Euro</option><option>TWD</option>
+          </select>
+        </div>
+        <div class="f">
+          <label>有效天數</label>
+          <input type="number" id="qdays" value="30" min="1">
+        </div>
+        <div class="f span2">
+          <label>付款條件（預設，各品項可個別調整）</label>
+          <input type="text" id="qpay" value="T/T 30 days">
+        </div>
+        <div class="f span2">
+          <label>備註</label>
+          <input type="text" id="qnotes" placeholder="選填">
+        </div>
+      </div>
+    </div>
+
+    <div class="qt-body">
+      <div class="qt-bh">已選產品 <span id="qcnt" style="color:#013121">0</span> 項</div>
+      <div id="ql"><div class="empty">← 點擊左側產品列加入報價單</div></div>
+    </div>
+
+    <div class="qt-foot">
+      <div class="btn-row">
+        <button class="btn btn-o" onclick="clrAll()">清除</button>
+        <button class="btn btn-p" id="pBtn" onclick="printQ()" disabled>📄 列印 / PDF</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const D=[["SP100001","常溫","Pietro Coricelli 100%純酪梨油","PC Refinded Avocado Oil","500ml","8004275089083",6,0,720,"義大利","Euro","CIF","PC","收佣金","TDS清帳",4.851,"已進口","全通路","","酪梨油",0.0],["SP100001","常溫","Ethnos 酪梨油","Ethnos Avocado Oil","500ml","",6,0,720,"義大利","Euro","CIF","PC","收佣金","TDS清帳",6.0,"已進口","全通路","","酪梨油",0.0],["SP100001","常溫","Pietro Coricelli 特級初榨橄欖油","PC EVOO","500ml","",6,0,720,"義大利","Euro","CIF","PC","收佣金","TDS清帳",4.73,"已進口","全通路","","橄欖油",0.0],["SP100001","常溫","ETHNOS南瓜籽油","Pumpkin Oil","500ml","",6,0,720,"義大利","Euro","CIF","PC","收佣金","TDS清帳",4.29,"已進口","全通路","","植物油",0.0],["SP100001","常溫","奇里歐義大利原裝進口經典頂級橄欖油","CIRIO Extra virgin olibe oil- classico","500ml","8004275058775",12,0,720,"義大利","Euro","CIF","PC","收佣金","TDS清帳",1.7023,"已進口","全通路","","橄欖油",0.0],["SP100001","常溫","奇里歐義大利原裝進口經典頂級橄欖油","CIRIO Extra virgin olive oil- classico","1000ml","8004275057617",12,0,720,"義大利","Euro","CIF","PC","收佣金","TDS清帳",7.8648,"已進口","全通路","","橄欖油",0.0],["SP100001","常溫","奇里歐義大利原裝進口純橄欖油","CIRIO Olive oil gentle recipes","1000ml","8004275057631",12,0,720,"義大利","Euro","CIF","PC","收佣金","TDS清帳",5.9539,"已進口","全通路","","橄欖油",0.0],["SP300001","常溫","Daily Yes日日好選超細纖維拋棄式抹布","Daily Yes Microfiber cloth23*23cm*20count","23cm*23cm*20sheet","",36,0,720,"中國","RMB","CIF","上海根因","收佣金","TDS清帳",8.9222,"已進口","全通路","","非食品",0.0],["SP100003","常溫","美味森市玄米油","Rice Bran Oil","1L","",6,0,720,"泰國","USD","FOB","Agro Wellness","買進","訂金50%, BL 14天50%",20.979,"已進口","全通路","","植物油",0.0],["SP100004","常溫","Rio Santo玉米片附莎莎醬","Deep'n More Taco chips and Mexican Salsa sauce","135g","8697406270414",36,40,360,"土耳其","EUR","EXW","Yonca","收佣金","TDS清帳",1.1371,"已進口","美廉社 / 全通路","","番茄相關",0.0],["SP100004","常溫","Rio Santo日曬油漬番茄","Sun Dried Tomatoes in Oil","330g","8697406274344",12,143,1080,"土耳其","EUR","EXW","Yonca","收佣金","TDS清帳",1.4946,"已進口","美廉社 / 全通路","","番茄相關",0.0],["SP100004","常溫","Rio Santo醃漬切片辣椒圈","Jalapenos Sliced","525g","8697406273477",12,90,1080,"土耳其","EUR","EXW","Yonca","收佣金","TDS清帳",1.0183,"已進口","美廉社 / 全通路","","番茄相關",0.0],["SP100004","常溫","Rio Santo醃漬整條黃瓜","Dill Pickles","525g","8697406273446",12,90,1080,"土耳其","EUR","EXW","Yonca","收佣金","TDS清帳",0.9938,"已進口","美廉社 / 全通路","","番茄相關",0.0],["SP100004","常溫","Rio Santo千島沙拉醬","Thousand Island Salad Dressing","357g","8697406273347",12,105,360,"土耳其","EUR","EXW","Yonca","收佣金","TDS清帳",1.06,"已進口","美廉社 / 全通路","","番茄相關",0.0],["SP100004","常溫","Rio Santo法式沙拉醬","French Salad Dressing","351g","8697406273354",12,105,360,"土耳其","EUR","EXW","Yonca","收佣金","TDS清帳",1.06,"已進口","美廉社 / 全通路","","番茄相關",0.0],["SP100004","常溫","Rio Santo凱薩沙拉醬","Caeser Salad Dressing","340g","8697406273378",12,105,360,"土耳其","EUR","EXW","Yonca","收佣金","TDS清帳",1.06,"已進口","美廉社 / 全通路","","番茄相關",0.0],["SP100004","常溫","Rio Santo披薩料理醬","Pizza Sauce","350g","8697406272005",12,143,900,"土耳其","EUR","EXW","Yonca","收佣金","TDS清帳",0.8933,"已進口","美廉社 / 全通路","","番茄相關",0.0],["SP100004","常溫","Rio Santo義大利番茄辣紅麵醬","Pasta Sauce Arabiatta","340g","8697406273101",12,143,900,"土耳其","EUR","EXW","Yonca","收佣金","TDS清帳",0.8933,"已進口","美廉社 / 全通路","","番茄相關",0.0],["SP100004","常溫","Rio Santo義大利番茄羅勒麵醬","Pasta Sauce Basilico","340g","8697406273125",12,143,900,"土耳其","EUR","EXW","Yonca","收佣金","TDS清帳",0.8933,"已進口","美廉社 / 全通路","","番茄相關",0.0],["SP100004","常溫","Rio Santo義大利番茄麵醬","Pasta Sauce Marinara","340g","8697406273118",12,143,900,"土耳其","EUR","EXW","Yonca","收佣金","TDS清帳",0.8933,"已進口","美廉社 / 全通路","","番茄相關",0.0],["SP100004","常溫","Rio Santo果肉番茄泥","Passata","700g","8697406274702",6,144,900,"土耳其","EUR","EXW","Yonca","收佣金","TDS清帳",0.9684,"已進口","美廉社 / 全通路","","番茄相關",0.0],["SP100004","常溫","Rio Santo果粒番茄泥","Rustica (Crushed Tomato)","700g","8697406274726",6,144,900,"土耳其","EUR","EXW","Yonca","收佣金","TDS清帳",0.9684,"已進口","美廉社 / 全通路","","番茄相關",0.0],["SP100004","常溫","大拇指芥花油1L","Yonca Canola oil","1L","8004275058775",15,0,720,"土耳其","USD","CIF","Yonca","收佣金","TDS清帳",1.6905,"已進口","美廉社 / 全通路","","植物油",0.0],["SP100004","常溫","大拇指芥花油5L","Yonca Canola oil","5L","8004275057617",4,0,720,"土耳其","USD","CIF","Yonca","收佣金","TDS清帳",8.004,"已進口","美廉社 / 全通路","","植物油",0.0],["SP100004","常溫","大拇指葵花油1L","Yonca Sunflower oil","1L","8004275058775",15,0,720,"土耳其","USD","CIF","Yonca","收佣金","TDS清帳",1.6905,"已進口","美廉社 / 全通路","","植物油",0.0],["SP100004","常溫","大拇指葵花油5L","Yonca Sunflower oil","5L","8004275057617",4,0,720,"土耳其","USD","CIF","Yonca","收佣金","TDS清帳",8.0179,"已進口","美廉社 / 全通路","","植物油",0.0],["SP100004","常溫","Yonca葵花油１Ｌ","Sunflower Oil","1L","8691321421463",12,84,720,"土耳其","USD","CIF","Yonca","收佣金","TDS清帳",1.6905,"已進口","美廉社 / 全通路","","植物油",0.0],["SP100004","常溫","美廉自有品牌芥花油１Ｌ","Canola Oil","1L","8691321421487",12,84,720,"土耳其","USD","CIF","Yonca","收佣金","TDS清帳",0,"已進口","美廉社 / 全通路","","植物油",0.0],["SP100004","常溫","Rio Santo葵花油１公升","葵花油Sunflower Oil","1L","8691321100108",12,84,720,"土耳其","USD","CIF","Yonca","收佣金","TDS清帳",1.6849,"已進口","美廉社 / 全通路","","植物油",0.0],["SP100004","常溫","Rio Santo葵花油５公升","葵花油Sunflower Oil","5L","8691321100504",4,84,720,"土耳其","USD","CIF","Yonca","收佣金","TDS清帳",7.7062,"已進口","美廉社 / 全通路","","植物油",0.0],["SP100004","常溫","Rio Santo芥花油１公升","芥花油Canola Oil","1L","8691321415400",12,84,720,"土耳其","USD","CIF","Yonca","收佣金","TDS清帳",1.7947,"已進口","美廉社 / 全通路","","植物油",0.0],["SP100004","常溫","Rio Santo芥花油５公升","芥花油Canola Oil","5L","8691321415431",4,84,720,"土耳其","USD","CIF","Yonca","收佣金","TDS清帳",8.2643,"已進口","美廉社 / 全通路","","植物油",0.0],["SP100006","常溫","Checkers 迷你碎粒杏仁可可製品","Checkers Stand Pouch Mini Chunky Almond 60g (compound)","60g","9555540038286",48,0,540,"馬來西亞","USD","CIF","Francestle","買進","訂金30%, BL 70%",0.5626,"已進口","美廉社 / 全通路","","巧克力",0.0],["SP100006","常溫","Checkers迷你碎粒綜合可可製品","Checkers Stand Pouch Mini Chunky Assorment 60g (compound)","60g","9555540038279",48,0,540,"馬來西亞","USD","CIF","Francestle","買進","訂金30%, BL 70%",0.5626,"已進口","美廉社 / 全通路","","巧克力",0.0],["SP100006","常溫","Auston海鹽可可製品","Auston Slim Seasalt Dark 60g","60g","9551021090712",36,0,540,"馬來西亞","USD","CIF","Francestle","買進","訂金30%, BL 70%",1.4587,"已進口","美廉社 / 全通路","","巧克力",0.0],["SP100006","常溫","Auston 75%黑巧克力","Auston Slim 75% Dark 60g","60g","9551021090682",36,0,540,"馬來西亞","USD","CIF","Francestle","買進","訂金30%, BL 70%",1.5755,"已進口","美廉社 / 全通路","","巧克力",0.0],["SP100006","常溫","Auston 85%黑巧克力","Auston Slim 85% Dark 60g","60g","9551021090699",36,0,540,"馬來西亞","USD","CIF","Francestle","買進","訂金30%, BL 70%",1.6922,"已進口","美廉社 / 全通路","","巧克力",0.0],["SP100006","常溫","Auston 99%黑巧克力","Auston Slim 99% Dark 60g","60g","9551021090705",36,0,540,"馬來西亞","USD","CIF","Francestle","買進","訂金30%, BL 70%",1.8089,"已進口","美廉社 / 全通路","","巧克力",0.0],["SP100006","常溫","Auston 提拉米蘇牛奶可可製品","Auston Cube Tiramisu Milk 65g","65g","9551021090736",30,0,540,"馬來西亞","USD","CIF","Francestle","買進","訂金30%, BL 70%",1.4004,"已進口","美廉社 / 全通路","","巧克力",0.0],["SP100006","常溫","Auston 提拉米蘇黑可可製品","Auston Cube Tiramisu Dark 65g","65g","9551021090620",30,0,540,"馬來西亞","USD","CIF","Francestle","買進","訂金30%, BL 70%",1.4004,"已進口","美廉社 / 全通路","","巧克力",0.0],["SP100010","常溫","義大利CRIK CROK原味洋芋片","CRIK CROK PLUS ORIGINAL","100g","8002085001257",15,0,360,"義大利","Euro","CIF","CRIKCROK","收佣金","TDS清帳",1.1095,"已進口","PX Mart / 全通路","","洋芋片",0.0],["SP100010","常溫","義大利CRIK CROK紅椒微辣洋芋片","CRIK CROK PLUS PAPRIKA","100g","8002085001264",15,0,360,"義大利","Euro","CIF","CRIKCROK","收佣金","TDS清帳",1.1095,"已進口","PX Mart / 全通路","","洋芋片",0.0],["SP100010","常溫","義大利CRIK CROK燒烤風味洋芋片","CRIK CROK PLUS BARBECUE","100g","8002085001899",15,0,360,"義大利","Euro","CIF","CRIKCROK","收佣金","TDS清帳",1.1095,"已進口","PX Mart / 全通路","","洋芋片",0.0],["SP100010","常溫","CRIK CROK酸奶洋蔥風味洋芋片","CRIK CROK PLUS SOUR CREAM & ONION","100g","8002085001776",15,0,360,"義大利","Euro","CIF","CRIKCROK","收佣金","TDS清帳",1.1095,"已進口","PX Mart / 全通路","","洋芋片",0.0],["SP100010","常溫","義大利CRIK CROK番茄醬風味洋芋片","CRIK CROK PLUS KETCHUP","100g","8002085001301",15,0,360,"義大利","Euro","CIF","CRIKCROK","收佣金","TDS清帳",1.1095,"已進口","PX Mart / 全通路","","洋芋片",0.0],["SP100010","常溫","CRIK CROK墨西哥辣椒風味洋芋片","CRIK CROK PLUS JALAPENO","100g","8002085001318",15,0,360,"義大利","Euro","CIF","CRIKCROK","收佣金","TDS清帳",1.1095,"已進口","PX Mart / 全通路","","洋芋片",0.0],["SP100007","常溫","Valnerina Tartufi松露抹醬90g","Truffle sauce 5%","90g","8053629686591",12,0,720,"義大利","Euro","CIF","VALNERINA TARTUFI","收佣金","TDS清帳",2.1505,"已進口","PX Mart / 全通路","","松露製品",0.0],["SP100007","常溫","Valnerina Tartufi松露醬90g","Black truffle patè 5%","90g","8053629685433",12,0,720,"義大利","Euro","CIF","VALNERINA TARTUFI","收佣金","TDS清帳",2.456,"已進口","PX Mart / 全通路","","松露製品",0.0],["SP100007","常溫","Valnerina Tartufi松露抹醬180g","Truffle sauce 5%","180g","8053629686508",12,0,720,"義大利","Euro","CIF","VALNERINA TARTUFI","收佣金","TDS清帳",3.1946,"已進口","PX Mart / 全通路","","松露製品",0.0],["SP100007","常溫","Valnerina Tartufi松露醬180g","Black truffle patè 5%","180g","8053629685402",12,0,720,"義大利","Euro","CIF","VALNERINA TARTUFI","收佣金","TDS清帳",3.576,"已進口","PX Mart / 全通路","","松露製品",0.0],["SP100007","常溫","黑松露風味橄欖油","Black truffle flavoured olive oil 100ml","100ml","8053629685532",12,0,720,"義大利","Euro","CIF","VALNERINA TARTUFI","收佣金","TDS清帳",3.0739,"已進口","PX Mart / 全通路","","松露製品",0.0],["SP100007","常溫","白松露風味橄欖油","White truffle flavoured olive oil 100ml","100ml","8053629685563",12,0,720,"義大利","Euro","CIF","VALNERINA TARTUFI","收佣金","TDS清帳",3.0739,"已進口","PX Mart / 全通路","","松露製品",0.0],["SP100007","常溫","黑松露沙拉醬","Truffle sauce sqeezy200g","200g","8053629680148",12,0,720,"義大利","Euro","CIF","VALNERINA TARTUFI","收佣金","TDS清帳",3.6279,"已進口","PX Mart / 全通路","","松露製品",0.0],["SP100007","常溫","松露鹽","Truffle salt 100g","100g","8053629682210",12,0,720,"義大利","Euro","CIF","VALNERINA TARTUFI","收佣金","TDS清帳",3.8368,"已進口","PX Mart / 全通路","","松露製品",0.0],["SP100010","常溫","義大利Apicoltura草莓果醬330g","50% Strawberry extra jam","330g","8002762606737",6,0,720,"義大利","Euro","CIF","Apicoltura Casentinese","收佣金","TDS清帳",2.1169,"已進口","PX Mart / 全通路","","果醬",0.0],["SP100010","常溫","義大利Apicoltura杏桃果醬330g","50% Apricot extra jam","330g","8002762606744",6,0,720,"義大利","Euro","CIF","Apicoltura Casentinese","收佣金","TDS清帳",2.1169,"已進口","PX Mart / 全通路","","果醬",0.0],["SP100010","常溫","義大利Apicoltura綜合莓果醬330g","50% Mixed berries extra jam","330g","8002762606751",6,0,720,"義大利","Euro","CIF","Apicoltura Casentinese","收佣金","TDS清帳",2.1169,"已進口","PX Mart / 全通路","","果醬",0.0],["SP100010","常溫","義大利Apicoltura桃子果醬330g","50% Peach extra jam","330g","8002762606768",6,0,720,"義大利","Euro","CIF","Apicoltura Casentinese","收佣金","TDS清帳",2.1169,"已進口","PX Mart / 全通路","","果醬",0.0],["SP100010","常溫","義大利Apicoltura橘子果醬330g","50% Orange marmalade","330g","8002762606775",6,0,720,"義大利","Euro","CIF","Apicoltura Casentinese","收佣金","TDS清帳",2.1169,"已進口","PX Mart / 全通路","","果醬",0.0],["SP100008","常溫","義大利LA MOLE經典脆餅-原味","SFORNATINI WITH OLIVE OIL","125g","8008685001079",18,0,720,"義大利","Euro","CIF","LA MOLE","收佣金","TDS清帳",0.6698,"已進口","PX Mart / 全通路","","義大利餅乾",0.0],["SP100008","常溫","義大利LA MOLE經典脆餅-迷迭香味","SFORNATINI WITH ROSEMARY AND OLIVE OIL","125g","8008685000164",18,0,720,"義大利","Euro","CIF","LA MOLE","收佣金","TDS清帳",0.6698,"已進口","PX Mart / 全通路","","義大利餅乾",0.0],["SP100008","常溫","義大利LA MOLE經典佛卡夏餅乾","IT'S FOCACCIA WITH EXTRA VERGIN OLIVE OIL","100g","8008685003523",8,0,720,"義大利","Euro","CIF","LA MOLE","收佣金","TDS清帳",1.5359,"已進口","PX Mart / 全通路","","義大利餅乾",0.0],["SP100008","常溫","佛卡夏餅乾－蒜香羅勒風味","IT'S FOCACCIA GARLIC & BASILI","100g","8008685003530",8,0,720,"義大利","Euro","CIF","LA MOLE","收佣金","TDS清帳",1.5359,"已進口","PX Mart / 全通路","","義大利餅乾",0.0],["SP100008","常溫","佛卡夏餅乾－迷迭香風味","IT'S FOCACCIA ROSMARY","100g","8008685003509",8,0,720,"義大利","Euro","CIF","LA MOLE","收佣金","TDS清帳",1.5359,"已進口","PX Mart / 全通路","","義大利餅乾",0.0],["SP100008","常溫","義大利LA MOLE脆麵包棒-原味","PANRUSTICI OLIVE OIL","100g","8008685000652",12,0,720,"義大利","Euro","CIF","LA MOLE","收佣金","TDS清帳",0.9766,"已進口","PX Mart / 全通路","","義大利餅乾",0.0],["SP100010","常溫","Montosco羅勒香料罐","Basil leaves","14g","8006614621442",6,0,720,"義大利","Euro","CIF","MONTOSCO","收佣金","TDS清帳",1.2994,"已進口","PX Mart / 全通路","1板 (900箱 / 5,400入)","香料",0.0],["SP100010","常溫","Montosco薄荷香料罐","Mint leaves","13g","8006614648760",6,0,720,"義大利","Euro","CIF","MONTOSCO","收佣金","TDS清帳",1.2994,"已進口","PX Mart / 全通路","","香料",0.0],["SP100010","常溫","Montosco月桂葉香料罐","Laurel crushed","15g","8006614648692",6,0,720,"義大利","Euro","CIF","MONTOSCO","收佣金","TDS清帳",1.4329,"已進口","PX Mart / 全通路","","香料",0.0],["SP100010","常溫","百里香香料","Thyme leaves","17g","8006614621602",6,0,720,"義大利","Euro","CIF","MONTOSCO","收佣金","TDS清帳",1.8216,"已進口","PX Mart / 全通路","","香料",0.0],["SP100010","常溫","AGRESTE義大利巴薩米克醋","Balsamic Vinegar of Modena 250ml","15g","8006614648692",6,0,720,"義大利","Euro","CIF","AntichiColli","收佣金","TDS清帳",1.5274,"已進口","PX Mart / 全通路","","醋",0.0],["SP100010","常溫","AGRESTE義大利巴薩米克醋膏","Glaze with Balsamic Vinegar of Modena 250ml","17g","8006614621602",6,0,720,"義大利","Euro","CIF","AntichiColli","收佣金","TDS清帳",1.8675,"已進口","PX Mart / 全通路","","醋",0.0],["SP100010","常溫","Dogadan洋甘菊花草茶1.4g*20入","Dogadan Camomile Herbal Tea","1.4g*20","8699580000306",12,0,720,"土耳其","Euro","CIF","Dogadan","收佣金","TDS清帳",1.1256,"已進口","PX Mart / 全通路","","花草茶",0.0],["SP100010","常溫","Dogadan薄荷花草茶1.3g*20入","Dogadan Mint Herbal Tea","1.3g*20","8699580000207",12,0,720,"土耳其","Euro","CIF","Dogadan","收佣金","TDS清帳",1.1256,"已進口","PX Mart / 全通路","","花草茶",0.0],["SP100010","常溫","Dogadan薄荷檸檬花草茶1.7g*20入","Dogadan Mint Lemon Herbal Tea","1.7g*20","8699580000214",12,0,720,"土耳其","Euro","CIF","Dogadan","收佣金","TDS清帳",1.1256,"已進口","PX Mart / 全通路","","花草茶",0.0],["SP100010","常溫","Dogadan茉莉綠茶1.7g*20入","Dogadan Green Tea with Jasmine","1.7g*20","8699580001761",12,0,720,"土耳其","Euro","CIF","Dogadan","收佣金","TDS清帳",1.1256,"已進口","PX Mart / 全通路","","花草茶",0.0],["SP100010","常溫","Dogadan巴西莓鳳梨綠茶1.7g*20入","Dogadan Acai Green Tea with Pineapple","1.7g*20","8699432215261",12,0,720,"土耳其","Euro","CIF","Dogadan","收佣金","TDS清帳",1.1256,"已進口","PX Mart / 全通路","","花草茶",0.0],["SP100010","常溫","Dogadan蘋果茶1.95g*20入","Dogadan Apple Tea","1.95g*20","8699580000115",12,0,720,"土耳其","Euro","CIF","Dogadan","收佣金","TDS清帳",1.1256,"已進口","PX Mart / 全通路","","花草茶",0.0],["SP100010","常溫","Dogadan玫瑰果茶2.4g*20入","Dogadan Rosehip Tea","2.4g*20","8699580000054",12,0,720,"土耳其","Euro","CIF","Dogadan","收佣金","TDS清帳",1.1256,"已進口","PX Mart / 全通路","","花草茶",0.0],["SP100010","常溫","Dogadan檸檬茶2g*20入","Dogadan Lemon Tea","2g*20","8699580000146",12,0,720,"土耳其","Euro","CIF","Dogadan","收佣金","TDS清帳",1.1256,"已進口","PX Mart / 全通路","","花草茶",0.0],["SP100010","常溫","Dogadan秘密花園紅茶2g*25入","Dogadan Nature Secret Garden  Tea Bag","2g*25","8699580003215",12,0,720,"土耳其","Euro","CIF","Dogadan","收佣金","TDS清帳",1.0308,"已進口","PX Mart / 全通路","","花草茶",0.0],["SP100010","常溫","Dogadan伯爵茶2g*25入","Dogadan Earl Gray Tea Bag","2g*25","8699580003833",12,0,720,"土耳其","Euro","CIF","Dogadan","收佣金","TDS清帳",1.0308,"已進口","PX Mart / 全通路","","花草茶",0.0],["SP100010","常溫","Dogadan傳統黑海經典紅茶2g*25入","Dogadan Traditional Black Sea Tea Bag","2g*25","8699432200861",12,0,720,"土耳其","Euro","CIF","Dogadan","收佣金","TDS清帳",0.9982,"已進口","PX Mart / 全通路","","花草茶",0.0],["SP100009","常溫","義大利卡納加金標紅葡萄酒","Canaja Gold Rosso Verona IGT","750ml","8032825452025",6,0,720,"義大利","Euro","EXW","VERGA","收佣金","TDS清帳",5.654,"已進口","PX Mart / 全通路","","葡萄酒",0.0],["SP100009","常溫","義大利1895托斯卡尼紅葡萄酒","1895 Rosso Toscana IGT","750ml","8000128150016",6,80,720,"義大利","Euro","EXW","VERGA","收佣金","TDS清帳",5.1014,"已進口","PX Mart / 全通路","","葡萄酒",0.0],["SP100009","常溫","義大利1895阿布魯佐大區紅酒","1895 Montepulciano D’Abruzzo Doc","750ml","8000128150009",6,80,720,"義大利","Euro","EXW","VERGA","收佣金","TDS清帳",4.84,"已進口","PX Mart / 全通路","","葡萄酒",0.0],["SP100009","常溫","1895 Primitivo di Manduria DOC","1895 Primitivo di Manduria DOC","750ml","8000128150023",6,80,720,"義大利","Euro","EXW","VERGA","收佣金","TDS清帳",5.8777,"已進口","PX Mart / 全通路","","葡萄酒",0.0],["SP100009","常溫","1895 Borolo DOCG","1895 Borolo DOCG","750ml","8000128150030",6,140,720,"義大利","Euro","EXW","VERGA","收佣金","TDS清帳",11.44,"已進口","PX Mart / 全通路","","葡萄酒",0.0],["SP100009","常溫","義大利托斯卡尼巴斯Governo紅酒","I Balzi Governo Rosso Toscano IGT","750ml","8000128164211",6,0,720,"義大利","Euro","EXW","VERGA","收佣金","TDS清帳",2.97,"已進口","PX Mart / 全通路","","葡萄酒",0.0],["SP100009","常溫","義大利普利亞安特萊紅酒","Antale Rosso Puglia Passito IGT Eur","750ml","8000128164457",6,0,720,"義大利","Euro","EXW","VERGA","收佣金","TDS清帳",2.97,"已進口","PX Mart / 全通路","","葡萄酒",0.0],["SP100009","常溫","義大利柏樹丘紅葡萄酒","Colle Dei Cipressi Montepulciano D’Abruzzo Doc","750ml","8000128051108",6,0,720,"義大利","Euro","EXW","VERGA","收佣金","TDS清帳",0,"已進口","PX Mart / 全通路","","葡萄酒",0.0],["SP100009","常溫","Pinot Grigio Delle Venezie DOC","Pinot Grigio Delle Venezie DOC","750ml","8000128035139",6,100,720,"義大利","Euro","EXW","VERGA","收佣金","TDS清帳",1.8864,"已進口","PX Mart / 全通路","","葡萄酒",0.0],["SP100009","常溫","Rosso Toscana IGT","Rosso Toscana IGT","750ml","8000128164242",6,84,720,"義大利","Euro","EXW","VERGA","收佣金","TDS清帳",3.3959,"已進口","PX Mart / 全通路","","葡萄酒",0.0],["SP100010","常溫","義大利拉齊奧和風粉紅酒","Zefiro IGT Lazio Aleatico","750ml","8059602130006",6,0,720,"義大利","Euro","EXW","Terre","收佣金","TDS清帳",2.244,"已進口","PX Mart / 全通路","","葡萄酒",0.0],["SP100010","常溫","red","Borgaio Chianti Classico Riserva DOCG","750ml","8032745750409",6,100,720,"義大利","Euro","EXW","Castle","收佣金","TDS清帳",0,"已進口","PX Mart / 全通路","","葡萄酒",0.0],["SP100010","常溫","red","Borgaio Chianti Classico DOCG","750ml","8032745750690",6,100,720,"義大利","Euro","EXW","Castle","收佣金","TDS清帳",0,"已進口","PX Mart / 全通路","","葡萄酒",0.0],["SP100010","常溫","rose","Borgaio Rosato IGT Toscana ROSATO","750ml","8032745750904",6,100,720,"義大利","Euro","EXW","Castle","收佣金","TDS清帳",0,"已進口","PX Mart / 全通路","","葡萄酒",0.0],["SP100010","常溫","sparkling","Spumante Colto alle Bolle Toscana","750ml","8032745750355",6,80,720,"義大利","Euro","EXW","Castle","收佣金","TDS清帳",0,"已進口","PX Mart / 全通路","","葡萄酒",0.0],["SP100010","常溫","Muliano Bianco 開心果餅乾","Muliano Bianco Baiocchi Pistachio","168g","8076809581318",9,0,270,"義大利","Euro","CIF","MB","收佣金","TDS清帳",2.9051,"已進口","PX Mart / 全通路","","葡萄酒",0.0],["—","常溫","Mayasi 調味腰果-鹹焦糖風味","Mayasi Cashew- Salted Caramel","100g","8990019000141",30,56,360,"印尼","USD","CIF","PT Managhora","買進","訂金30%, BL 70%",1.5692,"已進口","全通路","","調味腰果",0.0],["—","常溫","Mayasi 調味腰果-玉米風味","Mayasi Cashew- Corn","100g","8990019000134",30,56,360,"印尼","USD","CIF","PT Managhora","買進","訂金30%, BL 70%",1.5692,"已進口","全通路","","調味腰果",0.0],["—","常溫","Mayasi 調味腰果-蜂蜜奶油風味","Mayasi Cashew- Honey Butter","100g","8990019000158",30,56,360,"印尼","USD","CIF","PT Managhora","買進","訂金30%, BL 70%",1.5692,"已進口","全通路","","調味腰果",0.0],["—","常溫","捲心薄餅-巧克力風味 85g","Chocolate Crispy Crepes","85g","4710970827403",24,119,360,"印尼","USD","CIF","PT Managhora","買進","訂金30%, BL 70%",0.5322,"已進口","全通路","","餅乾",0.0],["—","常溫","捲心薄餅-草莓風味 85g","Strawberry Crispy Crepes","85g","4710970827410",24,119,360,"印尼","USD","CIF","PT Managhora","買進","訂金30%, BL 70%",0.5322,"已進口","全通路","","餅乾",0.0],["SP100011","常溫","初榨冷壓橄欖油 750ml","Kozakli EVOO","750ml","",12,0,720,"土耳其","Euro","CIF","Kozakli","收佣金","TDS清帳",4.0113,"已進口","美廉社 / 全通路","","橄欖油",0.0],["SP100011","常溫","Kozakli 純橄欖油 500ml","Kozakli Pure olive oil","500ml","8684232133174",12,0,720,"土耳其","Euro","CIF","Kozakli","收佣金","TDS清帳",2.4579,"已進口","美廉社 / 全通路","","橄欖油",0.0],["SP100011","常溫","純橄欖油","Kozakli Pure olive oil","750ml","",12,0,720,"土耳其","Euro","CIF","Kozakli","收佣金","TDS清帳",3.312,"已進口","美廉社 / 全通路","","橄欖油",0.0],["SP100011","常溫","Kozakli 純橄欖油 2L","Kozakli Pure olive oil","2L","8684232133198",6,0,720,"土耳其","Euro","CIF","Kozakli","收佣金","TDS清帳",9.132,"郵件新增","PX Mart / 全通路","5,000 units（20ft 3,630 units / 40ft 7,920 units）","橄欖油",0.0],["SP100011","常溫","初榨冷壓橄欖油 500ml","Selme Extra Virgin Olive Oil 500ml","500ml","8684674251641",12,90,720,"土耳其","Euro","CIF","Kozakli","收佣金","TDS清帳",2.7612,"已進口","美廉社 / 全通路","","橄欖油",0.0],["SP100001","常溫","大推純橄欖油750ml","大推Pure Olive Oil","750ml","8424308021895",6,85,720,"西班牙","Euro","CIF","PC","收佣金","TDS清帳",4.1324,"已進口","全通路","","橄欖油",0.0],["SP100001","常溫","大推初榨橄欖油750ml","大推 EVOO","70ml","8424308021888",6,85,720,"西班牙","Euro","CIF","PC","收佣金","TDS清帳",4.6327,"已進口","全通路","","橄欖油",0.0],["SP100011","常溫","純橄欖油 750ml","美廉Simple Life Pure Olive Oil 750ml","750ml","8684674251818",12,0,720,"土耳其","Euro","CIF","Kozakli","收佣金","TDS清帳",0,"已進口","美廉社 / 全通路","","橄欖油",0.0],["SP100010","常溫","義大利麵番茄醬","Tomato Puree 700 g","700g","8001120751218",12,72,720,"義大利","Euro","EXW","COOP","收佣金","TDS清帳",1.1894,"已進口","PX Mart / 全通路","","番茄製品",0.0],["SP100010","常溫","義大利麵番茄橄欖醬","Tomato and olives pasta sauce 400 g","400g","8001120719195",12,65,720,"義大利","Euro","FCA","COOP","收佣金","TDS清帳",1.245,"已進口","PX Mart / 全通路","","番茄製品",0.0],["SP100010","常溫","義大利小麥直麵 n.5","100% Italian Durum Wheat Spaghetti n.5 500 g","500g","8001120721242",24,76,720,"義大利","Euro","EXW","COOP","收佣金","TDS清帳",0.8044,"已進口","PX Mart / 全通路","","義大利麵/燉飯",0.0],["SP100010","常溫","義大利小麥短管麵 n.44","100% Italian Durum Wheat Sedani n 44 500 g","500g","8001120721358",8,130,720,"義大利","Euro","EXW","COOP","收佣金","TDS清帳",0.8333,"已進口","PX Mart / 全通路","","義大利麵/燉飯",0.0],["SP100010","常溫","義大利小麥筆管麵 n.67","100% Italian Durum Wheat mezze Penne Rigate n 67 500 g","500g","8001120721310",8,130,720,"義大利","Euro","EXW","COOP","收佣金","TDS清帳",0.8333,"已進口","PX Mart / 全通路","","義大利麵/燉飯",0.0],["SP100010","常溫","義大利小麥筆管麵 n.66","100% Italian Durum Wheat Pennette Rigate n 66 500 g","500g","8001120721327",8,130,720,"義大利","Euro","EXW","COOP","收佣金","TDS清帳",0.8333,"已進口","PX Mart / 全通路","","義大利麵/燉飯",0.0],["SP100010","常溫","義大利小麥麵(粒狀)","100% Italian Durum Wheat Tempestina 500 g","500g","8001120721464",10,180,720,"義大利","Euro","EXW","COOP","收佣金","TDS清帳",0.822,"已進口","PX Mart / 全通路","","其他食品",0.0],["SP100010","常溫","義大利小麥直麵 n.3","100% Italian Durum Wheat Spaghettini n. 3 500 g","500g","8001120721273",24,76,720,"義大利","Euro","EXW","COOP","收佣金","TDS清帳",0.8051,"已進口","PX Mart / 全通路","","義大利麵/燉飯",0.0],["SP100010","常溫","義大利小麥螺旋麵 n64","100% Italian Durum Wheat Fusilli n 64 500 g","500g","8001120721303",8,120,720,"義大利","Euro","EXW","COOP","收佣金","TDS清帳",0.8333,"已進口","PX Mart / 全通路","","義大利麵/燉飯",0.0],["SP100010","常溫","義大利小麥蝴蝶麵 n85","100% Italian Durum Wheat Farfalle n 85 500 g","500g","8001120721334",8,130,720,"義大利","Euro","EXW","COOP","收佣金","TDS清帳",0.8333,"已進口","PX Mart / 全通路","","義大利麵/燉飯",0.0],["SP100010","常溫","義大利小麥通心麵 n61","100% Italian Durum Wheat Chifferi n 61 500 g","500g","8001120721419",8,130,720,"義大利","Euro","EXW","COOP","收佣金","TDS清帳",0.8333,"已進口","PX Mart / 全通路","","義大利麵/燉飯",0.0],["SP100010","常溫","義大利小麥筆管麵 n.70","100% Italian Durum Wheat Penne rigate n 70 500 g","500g","8001120721297",8,130,720,"義大利","Euro","EXW","COOP","收佣金","TDS清帳",0.8333,"已進口","PX Mart / 全通路","","義大利麵/燉飯",0.0],["SP100010","常溫","義大利雞蛋千層麵","Egg Lasagne No-Antibiotic Used 500 g","500g","8001120854278",12,60,720,"義大利","Euro","EXW","COOP","收佣金","TDS清帳",0.9015,"已進口","PX Mart / 全通路","","義大利麵/燉飯",0.0],["SP100010","常溫","義大利米蘭經典燉飯","Risotto Milanese Style 175 g","175g","8001120936790",12,140,720,"義大利","Euro","EXW","COOP","收佣金","TDS清帳",1.1611,"已進口","PX Mart / 全通路","","義大利麵/燉飯",0.0],["SP100010","常溫","義大利蘆筍燉飯","Risotto with Asparagus 175 g","175g","8001120936806",12,140,720,"義大利","Euro","EXW","COOP","收佣金","TDS清帳",1.1749,"已進口","PX Mart / 全通路","","義大利麵/燉飯",0.0],["SP100012","常溫","雞汁風味泡麵","Instant Noodle Chicken Flavor 60g*5pcs","60g*5pcs","8992388134120",8,0,270,"印尼","USD","FOB","Abc","買進","訂金30%, BL 70%",4.776,"已進口","美廉社 / 全通路","","泡麵",0.0],["SP100012","常溫","牛肉風味泡麵","Instant Noodle Beef Flavor 60g*5pcs","60g*5pcs","8992388134267",8,0,270,"印尼","USD","FOB","Abc","買進","訂金30%, BL 70%",4.776,"已進口","美廉社 / 全通路","","泡麵",0.0],["SP100012","常溫","蔬菜風味泡麵","Instant Noodle Vegetable Flavor 60g*5pcs","60g*5pcs","8992388134243",8,0,270,"印尼","USD","FOB","Abc","買進","訂金30%, BL 70%",4.776,"已進口","美廉社 / 全通路","","泡麵",0.0],["SP100012","常溫","炒泡麵","Instant Fried Noodle 60g*5pcs","60g*5pcs","8992388134144",8,0,270,"印尼","USD","FOB","Abc","買進","訂金30%, BL 70%",5.2781,"已進口","美廉社 / 全通路","","泡麵",0.0],["SP100005","常溫","順發花生夾心餅乾","Biscuit Peanut Butter sandwich","175g","955 6184 175 023",12,0,540,"馬來西亞","USD","CIF","順發","買進","訂金30%, BL 70%",1.1079,"已進口","美廉社 / 全通路","","餅乾",0.0],["SP100005","常溫","順發MEFAR玉米風味夾心餅乾","Corn Flavoured Sandwich (Individual\nPack)","120g","955 6184 220 075",12,0,360,"馬來西亞","USD","CIF","順發","買進","訂金30%, BL 70%",0.6365,"已進口","美廉社 / 全通路","","餅乾",0.0],["SP100005","常溫","順發MEFAR巧克力風味夾心餅乾","Chocolate Flavoured Sandwich\n(Individual Pack)","114g","955 6184 220 099",12,0,540,"馬來西亞","USD","CIF","順發","買進","訂金30%, BL 70%",0.6365,"已進口","美廉社 / 全通路","","餅乾",0.0],["SP100005","常溫","順發MEFAR咖啡風味夾心餅乾","Coffee Flavoured Sandwich\n(Individual Pack)","114g","955 6184 220 044",12,0,540,"馬來西亞","USD","CIF","順發","買進","訂金30%, BL 70%",0.6365,"已進口","美廉社 / 全通路","","餅乾",0.0],["SP100005","常溫","濃郁芝士風味夾心餅乾","Cheese Sandwich (Individual Pack)","190g","955 6184 018 009",12,0,540,"馬來西亞","USD","CIF","順發","買進","訂金30%, BL 70%",1.144,"已進口","美廉社 / 全通路","","餅乾",0.0],["SP100005","常溫","蘇打餅乾","Cream Crackers Special","88g","955 6184 150 051",24,0,540,"馬來西亞","USD","CIF","順發","買進","訂金30%, BL 70%",0.3422,"已進口","美廉社 / 全通路","","餅乾",0.0],["SP100005","常溫","消化餅乾","Digestive Biscuit","45g","955 6184 000 400",0,0,540,"馬來西亞","USD","CIF","順發","買進","訂金30%, BL 70%",0.1646,"已進口","美廉社 / 全通路","","餅乾",0.0],["SP100005","常溫","燕麥餅乾","Oaties Biscuit","45g","955 6184 000 417",0,0,540,"馬來西亞","USD","CIF","順發","買進","訂金30%, BL 70%",0.1646,"已進口","美廉社 / 全通路","","餅乾",0.0],["SP100005","常溫","Shoon Fatt經典糖霜蘇打餅乾","400g*12pcks Biscuit Sugar Cranker","400g","9556184500023",12,0,540,"馬來西亞","USD","CIF","順發","買進","訂金30%, BL 70%",1.0311,"已進口","美廉社 / 全通路","","餅乾",0.0],["SP100005","常溫","Shoon Fatt奶油玉米風味蘇打餅乾","350g*12pcks Biscuit Gold Crackers","350g","9556184200114",12,0,540,"馬來西亞","USD","CIF","順發","買進","訂金30%, BL 70%",1.16,"已進口","美廉社 / 全通路","","餅乾",0.0],["SP100005","常溫","Shoon Fatt圓形瑪莉餅乾","265g*12packs Biscuit Big Marie","265g","9556184300029",12,0,540,"馬來西亞","USD","CIF","順發","買進","訂金30%, BL 70%",1.0429,"已進口","美廉社 / 全通路","","餅乾",0.0],["SP100005","常溫","MEFAR檸檬風味夾心餅乾","114g*12packs Biscuit Mefar Lemon Flavoured Sandwich","114g","9556184220068",12,0,540,"馬來西亞","USD","CIF","順發","買進","訂金30%, BL 70%",0.569,"已進口","美廉社 / 全通路","","餅乾",0.0],["SP100005","常溫","MEFAR可可風味夾心餅乾","111g*12packs Biscuit Mefar Cocoa Flavoured Sandwich","111g","9556184220112",12,0,540,"馬來西亞","USD","CIF","順發","買進","訂金30%, BL 70%",0.569,"已進口","美廉社 / 全通路","","餅乾",0.0],["SP100005","常溫","Shoon Fatt消化餅","250g*12packs Biscuit Digestives","250g","9556184250096",12,0,360,"馬來西亞","USD","CIF","順發","買進","訂金30%, BL 70%",0.9315,"已進口","美廉社 / 全通路","","餅乾",0.0],["SP100005","常溫","Shoon Fatt燕麥餅","248g*12pcs Biscuit Oaties","248g","9556184250102",12,0,360,"馬來西亞","USD","CIF","順發","買進","訂金30%, BL 70%",0.9315,"已進口","美廉社 / 全通路","","餅乾",0.0],["SP100005","常溫","Shoon Fatt奶油蘇打餅乾","730g*6pcks Biscuit Cream Cracker Special (111)","730g","9556184100162",6,0,540,"馬來西亞","USD","CIF","順發","買進","訂金30%, BL 70%",2.26,"已進口","美廉社 / 全通路","","餅乾",0.0],["SP100005","常溫","Shoon Fatt瑪莉圓餅","730g*6pcks Biscuit Big Marie (111)","730g","9556184100179",6,0,540,"馬來西亞","USD","CIF","順發","買進","訂金30%, BL 70%",2.26,"已進口","美廉社 / 全通路","","餅乾",0.0],["SP100005","常溫","Shoon Fatt桶裝奶油餅","700g*6tins Biscuit Cheese Cracker","700g","9556184700065",6,0,540,"馬來西亞","USD","CIF","順發","買進","訂金30%, BL 70%",3.5625,"已進口","美廉社 / 全通路","","餅乾",0.0],["SP100013","常溫","香脆魷魚鬚","Crispy Squid Tentacles (Original Flavor)","20g","8858768843276",24,0,360,"泰國","USD","FOB","GoMuc","買進","訂金30%, BL 70%",21.7887,"已進口","美廉社 / 全通路","","零食",0.0],["SP100013","常溫","烤魷魚","Grilled Squid","10g","8858768842323",48,0,360,"泰國","USD","FOB","GoMuc","買進","訂金30%, BL 70%",36.4376,"已進口","美廉社 / 全通路","","零食",0.0],["SP100013","常溫","烤魷魚捲","Grilled-Rolled Squid","13g","8858768842460",48,0,360,"泰國","USD","FOB","GoMuc","買進","訂金30%, BL 70%",53.3023,"已進口","美廉社 / 全通路","","零食",0.0],["SP100013","常溫","香脆鯷魚(原味)","Crispy Fish Original","65g","8858768841432",24,0,360,"泰國","USD","FOB","GoMuc","買進","訂金30%, BL 70%",19.696,"已進口","美廉社 / 全通路","","零食",0.0],["SP100013","常溫","香脆鯷魚(芝麻)","Crispy Fish Sesame","65g","8858768841418",24,0,360,"泰國","USD","FOB","GoMuc","買進","訂金30%, BL 70%",19.696,"已進口","美廉社 / 全通路","","零食",0.0],["SP100013","常溫","香脆鳀鱼","Crispy Kozakana Fish\n(Original Flavor)","35g","8858768842521",24,0,360,"泰國","USD","FOB","GoMuc","買進","訂金30%, BL 70%",20.927,"已進口","美廉社 / 全通路","","零食",0.0],["SP100013","常溫","香脆鳳尾魚","Crispy Anchovy (Natural Flavor)","30g","8858768843313",24,0,360,"泰國","USD","FOB","GoMuc","買進","訂金30%, BL 70%",21.4194,"已進口","美廉社 / 全通路","","零食",0.0],["SP100013","常溫","乾果混合堅果","Trail Mix\n(Mixed Nuts and Dried Fruit)","30g","8858768832416",24,0,360,"泰國","USD","FOB","GoMuc","買進","訂金30%, BL 70%",16.3723,"已進口","美廉社 / 全通路","","零食",0.0],["SP100013","常溫","乾果混合堅果","Daily Pack\n(Mixed Nuts and Dried Fruit)","30g","8858768832423",24,0,360,"泰國","USD","FOB","GoMuc","買進","訂金30%, BL 70%",16.3723,"已進口","美廉社 / 全通路","","零食",0.0],["SP100015","常溫","原味洋芋片","Original","110g","9555727900023",24,0,360,"馬來西亞","USD","FOB","Chizzpa","買進","訂金30%, BL 70%",15.498,"已進口","全通路","","洋芋片",0.0],["SP100015","常溫","酸奶洋蔥洋芋片","Sour cheese & Onion","110g","9555727900122",24,0,360,"馬來西亞","USD","FOB","Chizzpa","買進","訂金30%, BL 70%",15.498,"已進口","全通路","","洋芋片",0.0],["SP100015","常溫","勁辣洋芋片","Hot and Spicy","110g","9555727900726",24,0,360,"馬來西亞","USD","FOB","Chizzpa","買進","訂金30%, BL 70%",15.498,"已進口","全通路","","洋芋片",0.0],["SP100015","常溫","BBQ洋芋片","BBQ","110g","9555727900221",24,0,360,"馬來西亞","USD","FOB","Chizzpa","買進","訂金30%, BL 70%",15.498,"已進口","全通路","","洋芋片",0.0],["SP100014","常溫","KORIKO海苔夾心原味30g","Sandwich seaweed 30 g. Original flavor","30g","8854579005698",24,0,540,"泰國","USD","FOB","NBF","買進","訂金30%, BL 70%",0.7966,"已進口","美廉社 / 全通路","","零食",0.0],["SP100014","常溫","KORIKO海苔夾心韓式泡麵風味30g","Sandwich seaweed 30 g. Korean noodle flavor","30g","8854579005704",24,0,540,"泰國","USD","FOB","NBF","買進","訂金30%, BL 70%",0.7966,"已進口","美廉社 / 全通路","","零食",0.0],["SP100014","常溫","KORIKO海苔夾心芥末風味30g","Seaweed sandwich 30 g.Wasabi flavor","30g","8854579006237",24,0,540,"泰國","USD","FOB","NBF","買進","訂金30%, BL 70%",0.7966,"已進口","美廉社 / 全通路","","零食",0.0],["SP100014","常溫","KORIKO海苔夾心麻辣風味30g","Seaweed sandwich 30 g. MALA flavor","30g","8854579006596",24,0,540,"泰國","USD","FOB","NBF","買進","訂金30%, BL 70%",0.7966,"已進口","美廉社 / 全通路","","零食",0.0],["SP100014","常溫","KORIKO海苔夾心鹹蛋黃風味30g","Seaweed sandwich 30 g. Salted egg flavor","30g","8854579006220",24,0,540,"泰國","USD","FOB","NBF","買進","訂金30%, BL 70%",0.7966,"已進口","美廉社 / 全通路","","零食",0.0],["SP100014","常溫","KORIKO 海苔捲原味 3.6 g(10入裝)","KORIKO ROLL SEAWEED ORIGINAL FLAVOUR 3.6 g*10pcs","36g","8854579006008",12,0,540,"泰國","USD","FOB","NBF","買進","訂金30%, BL 70%",1.2702,"已進口","美廉社 / 全通路","","零食",0.0],["SP100014","常溫","KORIKO 海苔捲辣味 3.6 g(10入裝)","KORIKO ROLL SEAWEED ORIGINAL FLAVOUR 3.6 g*10pcs","36g","8854579006015",12,0,540,"泰國","USD","FOB","NBF","買進","訂金30%, BL 70%",1.2702,"已進口","美廉社 / 全通路","","零食",0.0],["SP100016","常溫","Go Bites 波浪洋芋片蝦辣風味","Go Bites (Crinkle)-Tom Yam","60g","9556819800856",40,0,360,"馬來西亞","USD","FOB","C&F","買進","訂金30%, BL 70%",20.5802,"已進口","美廉社 / 全通路","","洋芋片",0.0],["SP100016","常溫","Go Bites洋芋片原味","Go Bites (Thin)-Original","60g","9556819800207",40,0,360,"馬來西亞","USD","FOB","C&F","買進","訂金30%, BL 70%",20.5802,"已進口","美廉社 / 全通路","","洋芋片",0.0],["SP100016","常溫","Go Bites洋芋片番茄風味","Go Bites (Thin)-Tomato","60g","6556819800863",40,0,360,"馬來西亞","USD","FOB","C&F","買進","訂金30%, BL 70%",20.5802,"已進口","美廉社 / 全通路","","洋芋片",0.0],["SP100016","常溫","Go Bites波浪洋芋片海鹽風味","Go Bites (Crinkle)-Sea Salt","60g","9556819800733",40,0,360,"馬來西亞","USD","FOB","C&F","買進","訂金30%, BL 70%",20.5802,"已進口","美廉社 / 全通路","","洋芋片",0.0],["SP100016","常溫","Go Bites波浪洋芋片辣椒風味","Go Bites (Crinkle)-Hot Chili","60g","9556819800764",40,0,360,"馬來西亞","USD","FOB","C&F","買進","訂金30%, BL 70%",20.5802,"已進口","美廉社 / 全通路","","洋芋片",0.0],["SP100010","常溫","熱破碎蕃茄糊桶裝","HB Tomato sauce in drum","225kg","",6,144,900,"土耳其","USD","CIF","Burcu","買進","訂金30%, BL 70%",0.9437,"已進口","全通路","","番茄製品",0.0],["SP100010","常溫","冷破碎蕃茄糊罐裝","CB Tomato sauce","4.3kg","",6,54,720,"土耳其","USD","CIF","Burcu","買進","訂金30%, BL 70%",3.5997,"已進口","全通路","","番茄製品",0.0],["SP100010","常溫","冷破碎蕃茄糊PET瓶裝","CB Tomato sauce","3.2kg","",4,105,720,"土耳其","USD","CIF","Burcu","買進","訂金30%, BL 70%",8.5575,"已進口","全通路","","番茄製品",0.0],["—","常溫","切角番茄 袋裝","Chopped tomato","3kg","",0,0,720,"西班牙","","EXW","Pronat","買進","訂金30%, BL 70%",0,"已進口","全通路","","番茄製品",0.0],["SP200002","冷凍","起司棒","67980Cheese Stick (40u)","82g","67980",40,170,360,"西班牙","Euro","CIF","Europastry","買進","BL 60天",0.7802,"已進口","全通路","1 FTL 20'","冷凍烘焙",42.0],["SP200002","冷凍","巧克力雙色可頌","60165 Choco Bicol. Croissant (36u)","90g","60165",36,120,360,"西班牙","Euro","CIF","Europastry","買進","BL 60天",0.5396,"已進口","全通路","1 FTL 20'","冷凍烘焙",32.0],["SP200002","冷凍","蘋果卡士達蛋撻","65205 Apple Portuguese Egg Tart 蘋果葡式蛋塔","72g","",44,170,360,"西班牙","Euro","CIF","Europastry","買進","BL 60天",0.4644,"已進口","全通路","1 FTL 20'","冷凍烘焙",26.0],["SP200002","冷凍","榛果巧克力蛋撻","65182 Pastel Nata Cioc 葡式蛋塔巧克力口味","62g","65182",36,170,270,"西班牙","Euro","CIF","Europastry","買進","BL 60天",0.4585,"已進口","全通路","1 FTL 20'","冷凍烘焙",26.0],["SP200002","冷凍","起司方塊派","Cuadrado Caprese (48u)","136g","67048",48,90,360,"西班牙","Euro","CIF","Europastry","買進","BL 60天",0.6561,"已進口","全通路","1 FTL 20'","冷凍烘焙",39.0],["SP200002","冷凍","阿爾伯特起司蛋糕","64142 AA Cheese Cake (8U)","330g","64142",8,90,360,"西班牙","Euro","CIF","Europastry","買進","BL 60天",7.363,"已進口","全通路","1 FTL 20'","冷凍烘焙",399.0],["SP200002","冷凍","天然奶油脆皮酥","Caprice Paille (55u)","90","22690",55,140,540,"西班牙","Euro","CIF","Europastry","買進","BL 60天",0.6677,"已進口","全通路","1 FTL 20'","冷凍烘焙",38.0],["SP200002","冷凍","天然奶油蝴蝶酥","Butter Palmier (90u)","90","85310",90,90,540,"西班牙","Euro","CIF","Europastry","買進","BL 60天",0.6582,"已進口","全通路","1 FTL 20'","冷凍烘焙",38.0],["SP200002","冷凍","覆盆子雙色可頌","Raspberry bicol.Croissant 36u","90","60155",36,120,360,"西班牙","Euro","CIF","Europastry","買進","BL 60天",0.7009,"已進口","全通路","1 FTL 20'","冷凍烘焙",42.0],["SP200002","冷凍","天然穀物脆皮可頌","Caprice Multicereal Croissant","80","22180",55,90,360,"西班牙","Euro","CIF","Europastry","買進","BL 60天",0.5059,"已進口","全通路","1 FTL 20'","冷凍烘焙",32.0],["SP200002","冷凍","天然奶油脆皮蘋果口袋酥","Apple Pocket (70u)","110","65450",70,90,540,"西班牙","Euro","CIF","Europastry","買進","BL 60天",0.8239,"已進口","全通路","1 FTL 20'","冷凍烘焙",46.0],["SP200002","冷凍","榛果可可派","Cocoa Hazelnut Panier (60u)","100","61946",60,120,360,"西班牙","Euro","CIF","Europastry","買進","BL 60天",0.7075,"已進口","全通路","1 FTL 20'","冷凍烘焙",40.0],["SP200002","冷凍","地中海椒鹽扭結酥","Mediterranian Bretzel (32u)","147","40298",32,120,360,"西班牙","Euro","CIF","Europastry","買進","BL 60天",1.0247,"已進口","全通路","1 FTL 20'","冷凍烘焙",60.0],["SP200002","冷凍","拿玻里番茄起司派","Napoli Envoltini (55u)","135","21680",55,120,360,"西班牙","Euro","CIF","Europastry","買進","BL 60天",0.6567,"已進口","全通路","1 FTL 20'","冷凍烘焙",38.0],["SP200002","冷凍","奶油起司滿餡卷","Cheese Snecken (36u)","111","67903",36,80,360,"西班牙","Euro","CIF","Europastry","買進","BL 60天",0.8402,"已進口","全通路","1 FTL 20'","冷凍烘焙",52.0],["SP200002","冷凍","肉桂捲","Cinnamon Roll PFMT (30u)","110","62457",30,72,360,"西班牙","Euro","CIF","Europastry","買進","BL 60天",0.8311,"已進口","全通路","1 FTL 20'","冷凍烘焙",55.0],["SP200002","冷凍","起司蝴蝶酥","Cheese Bretzel","145","40297",32,120,360,"西班牙","Euro","CIF","Europastry","買進","BL 60天",0.9218,"已進口","全通路","1 FTL 20'","冷凍烘焙",54.0],["SP200002","冷凍","Cristallino Ciabatta (28px2u)","Cristallino Ciabatta (28px2u)","190","67322",28,40,450,"西班牙","Euro","CIF","Europastry","買進","BL 60天",0.9364,"已進口","全通路","1 FTL 20'","冷凍烘焙",51.26],["SP200002","冷凍","Cristallino Ciabatta Kornsptiz (28px2u)","Cristallino Ciabatta Kornsptiz (28px2u)","196","60036",28,40,450,"西班牙","Euro","CIF","Europastry","買進","BL 60天",1.1229,"已進口","全通路","1 FTL 20'","冷凍烘焙",60.05],["SP200002","冷凍","Cristallino Ciabatta Gouda (28px2u)","Cristallino Ciabatta Gouda (28px2u)","190","65405",28,50,270,"西班牙","Euro","CIF","Europastry","買進","BL 60天",1.7883,"已進口","全通路","1 FTL 20'","冷凍烘焙",91.37],["SP200002","冷凍","Cristallino burger (14px4u)","Cristallino burger (14px4u)","300","89838",14,40,360,"西班牙","Euro","CIF","Europastry","買進","BL 60天",1.669,"已進口","全通路","1 FTL 20'","冷凍烘焙",92.03],["SP200002","冷凍","Cristallino burger (10px6u)","Cristallino burger (10px6u)","426","69865",10,40,360,"西班牙","Euro","CIF","Europastry","買進","BL 60天",2.407,"已進口","全通路","1 FTL 20'","冷凍烘焙",128.89],["SP200002","冷凍","Vegan Caprese Yummie (24u)","Vegan Caprese Yummie (24u)","90","67515",24,180,360,"西班牙","Euro","CIF","Europastry","買進","BL 60天",1.4134,"已進口","全通路","1 FTL 20'","冷凍烘焙",80.0],["SP200002","冷凍","Vegan Burger Yummie (24u)","Vegan Burger Yummie (24u)","85","65510",24,180,360,"西班牙","Euro","CIF","Europastry","買進","BL 60天",1.5155,"已進口","全通路","1 FTL 20'","冷凍烘焙",85.0],["SP200002","冷凍","解凍即食吉拿棒","Churros (177u)","17","61391",177,135,360,"西班牙","Euro","CIF","Europastry","買進","BL 60天",0.1609,"已進口","全通路","1 FTL 20'","冷凍烘焙",9.9],["SP200002","冷凍","Caprice Hazelnut Croissant 48u","Caprice Hazelnut Croissant 48u","90","61105",48,90,360,"西班牙","Euro","CIF","Europastry","買進","BL 60天",0.5961,"已進口","全通路","1 FTL 20'","冷凍烘焙",38.0],["SP200002","冷凍","Custard Long Dots (45u)SG","Custard Long Dots (45u)SG","55","20260",45,112,360,"西班牙","Euro","CIF","Europastry","買進","BL 60天",0.4391,"已進口","全通路","1 FTL 20'","冷凍烘焙",29.0],["SP200002","冷凍","Custard Mini BallDots (40u)SG","Custard Mini BallDots (40u)SG","40","42880",40,150,360,"西班牙","Euro","CIF","Europastry","買進","BL 60天",0.3204,"已進口","全通路","1 FTL 20'","冷凍烘焙",22.0],["SP200001","冷凍","Feast吉拿棒切薯條","Feast Churros Cut Potatoes","1000g","8697343111689",10,56,720,"土耳其","Euro","CIF","Feast","買進","訂金30%, BL 70%",2.1495,"已進口","全通路","1 FTL 20'","冷凍薯類/點心",130.5],["SP200001","冷凍","Feast楔型薯塊","Feast IQF WEDGE POTATO","1000g","8697343600022",10,80,720,"土耳其","Euro","CIF","Feast","買進","訂金30%, BL 70%",1.9034,"已進口","全通路","1 FTL 20'","冷凍薯類/點心",112.89],["SP200001","冷凍","Feast10*10mm 薯條","Feast IQF French Fries 10*10mm","1000g","8697343644255",10,64,720,"土耳其","Euro","CIF","Feast","買進","訂金30%, BL 70%",2.0511,"已進口","全通路","1 FTL 20'","冷凍薯類/點心",123.39],["SP200001","冷凍","Feast7*7mm超細薯條","FEAST IQF FRENCH FRIES 7*7mm","1000g","8697343600039",10,64,720,"土耳其","Euro","CIF","Feast","買進","訂金30%, BL 70%",2.1261,"已進口","全通路","1 FTL 20'","冷凍薯類/點心",115.95],["SP200001","冷凍","洋蔥圈","Feast IQF Onion Rings","450g","8697343650027",12,72,720,"土耳其","Euro","CIF","Feast","買進","訂金30%, BL 70%",1.2156,"已進口","全通路","1 FTL 20'","冷凍薯類/點心",68.43],["SP200001","冷凍","急速冷凍青花菜","IQF Feast Broccoli","500g","9697343550129",12,72,720,"土耳其","Euro","CIF","Feast","買進","訂金30%, BL 70%",1.3156,"已進口","全通路","1 FTL 20'","冷凍蔬果",73.29],["SP200001","冷凍","急速冷凍碗豆","IQF Feast Peas","450g","8697343550013",20,80,720,"土耳其","Euro","CIF","Feast","買進","訂金30%, BL 70%",0.933,"已進口","全通路","1 FTL 20'","冷凍蔬果",50.39],["SP200001","冷凍","急速冷凍切四季豆","IQF Feast Cut Green Beans","450g","9697343550020",16,80,720,"土耳其","Euro","CIF","Feast","買進","訂金30%, BL 70%",1.1131,"已進口","全通路","1 FTL 20'","冷凍蔬果",60.41],["SP200001","冷凍","辣味洋蔥圈","Feast IQF Spicy Onion Rings 12*450g","450g","",12,72,720,"土耳其","USD","CIF","Feast","買進","訂金30%, BL 70%",1.075,"已進口","全通路","1 FTL 20'","冷凍薯類/點心",61.59],["SP200001","冷凍","起司棒","Feast IQF Cheese Sticks 12*300g","300g","8697343111764",12,160,720,"土耳其","USD","CIF","Feast","買進","訂金30%, BL 70%",1.8375,"已進口","全通路","1 FTL 20'","冷凍薯類/點心",93.52],["SP200001","冷凍","可樂餅","Feast IQF Potato Croquette 12*300g","450g","8697343112150",16,80,720,"土耳其","USD","CIF","Feast","買進","訂金30%, BL 70%",0.9,"已進口","全通路","1 FTL 20'","冷凍薯類/點心",50.05],["SP200001","冷凍","玉米可樂餅","Feast IQF Corn PotatoCroquette 20*450g","450g","8697343112211",20,80,720,"土耳其","USD","CIF","Feast","買進","訂金30%, BL 70%",0.9875,"已進口","全通路","1 FTL 20'","冷凍薯類/點心",53.04],["SP200001","冷凍","薯餅","Feast IQF Hashbrowns 20-450g","450g","8697343112228",20,80,720,"土耳其","USD","CIF","Feast","買進","訂金30%, BL 70%",1.0125,"已進口","全通路","1 FTL 20'","冷凍薯類/點心",54.26],["SP200001","冷凍","急速冷凍鮮覆盆子","FEAST IQF RASPBERRY 8X350 GR","350 g","8697343550136",8,180,720,"土耳其","EURO","CIF","Feast","買進","訂金30%, BL 70%",5.065,"已進口","全通路","1 FTL 20'","冷凍蔬果",318.14],["SP200001","冷凍","急速冷凍鮮草莓","FEAST IQF STRAWBERRY 8X400 GR","400 g","8697343550150",8,180,720,"土耳其","EURO","CIF","Feast","買進","訂金30%, BL 70%",2.9025,"已進口","全通路","1 FTL 20'","冷凍蔬果",184.31],["SP200001","冷凍","急速冷凍鮮酸櫻桃","FEAST IQF SOUR CHERRY 8X400 GR","400 g","8697343550167",8,180,720,"土耳其","EURO","CIF","Feast","買進","訂金30%, BL 70%",4.4275,"已進口","全通路","1 FTL 20'","冷凍蔬果",278.69],["SP200001","冷凍","急速冷凍鮮黑莓","FEAST IQF BLACKBERRY 8X350 GR","350 g","8697343550143",8,180,720,"土耳其","EURO","CIF","Feast","買進","訂金30%, BL 70%",3.0525,"已進口","全通路","1 FTL 20'","冷凍蔬果",193.59],["SP200001","冷凍","急速冷凍綜合鮮莓果","FEAST IQF BLOOM (MIXED FRUITS)  8x350 g","350 g","8697343111870",8,180,720,"土耳其","EURO","CIF","Feast","買進","訂金30%, BL 70%",3.7775,"已進口","全通路","1 FTL 20'","冷凍蔬果",238.46],["SP200001","冷凍","急速冷凍藍莓","FEAST IQF BLUEBERRY 10X250GR","250 g","8697343112402",10,180,720,"土耳其","EURO","CIF","Feast","買進","訂金30%, BL 70%",3.0745,"已進口","全通路","1 FTL 20'","冷凍蔬果",194.02],["SP100010","冷凍","榛果義式冰淇淋","G7 Nocciolato","300g","800692083772",12,165,720,"義大利","Euro","CIF","G7","買進","訂金30%, BL 70%",1.5561,"已進口","全通路","","冰淇淋",0.0],["SP100010","冷凍","巧酥義式冰淇淋","G7 Stracciatella","300g","800692083796",12,165,720,"義大利","Euro","CIF","G7","買進","訂金30%, BL 70%",1.5561,"已進口","全通路","","冰淇淋",0.0],["SP100011","常溫","Kozakli 純橄欖油 Marasca玻璃瓶 500ml","Kozakli Pure Olive Oil Marasca Glass 500ml","500ml","",12,0,720,"土耳其","Euro","CIF","Kozakli","收佣金","TDS清帳",2.714,"郵件新增","PX Mart / 全通路","10,000 units（20ft 11,880 units / 40ft 25,920 units）","橄欖油",0.0],["SP100011","常溫","Kozakli 純橄欖油 Marasca玻璃瓶 750ml","Kozakli Pure Olive Oil Marasca Glass 750ml","750ml","",12,0,720,"土耳其","Euro","CIF","Kozakli","收佣金","TDS清帳",4.0474,"郵件新增","美廉社 / 全通路","","橄欖油",0.0],["SP100011","常溫","Kozakli 純橄欖油 Marasca玻璃瓶 1L","Kozakli Pure Olive Oil Marasca Glass 1L","1L","",12,0,720,"土耳其","Euro","CIF","Kozakli","收佣金","TDS清帳",5.3808,"郵件新增","美廉社 / 全通路","","橄欖油",0.0],["SP100011","常溫","Kozakli 純橄欖油 PET瓶 500ml","Kozakli Pure Olive Oil PET 500ml","500ml","",12,0,720,"土耳其","Euro","CIF","Kozakli","收佣金","TDS清帳",2.5252,"郵件新增","美廉社 / 全通路","","橄欖油",0.0],["SP100011","常溫","Kozakli 純橄欖油 PET瓶 750ml","Kozakli Pure Olive Oil PET 750ml","750ml","",12,0,720,"土耳其","Euro","CIF","Kozakli","收佣金","TDS清帳",3.6934,"郵件新增","美廉社 / 全通路","","橄欖油",0.0],["SP100011","常溫","Kozakli 純橄欖油 PET瓶 1L","Kozakli Pure Olive Oil PET 1L","1L","",12,0,720,"土耳其","Euro","CIF","Kozakli","收佣金","TDS清帳",4.8498,"郵件新增","美廉社 / 全通路","","橄欖油",0.0],["SP100011","常溫","Kozakli 純橄欖油 PET瓶 2L","Kozakli Pure Olive Oil PET 2L","2L","",6,0,720,"土耳其","Euro","CIF","Kozakli","收佣金","TDS清帳",8.9798,"郵件新增","PX Mart / 全通路","5,000 units（20ft 3,630 units / 40ft 7,920 units）","橄欖油",0.0],["NEW","常溫","BEYOĞLU DUBACO MINI 杜拜巧克力 250g","BEYOĞLU DUBACO MINI Dubai Chocolate","250g","",12,0,365,"土耳其","USD","EXW","BEYOĞLU","收佣金","TDS清帳",2.4662,"郵件新增","","","巧克力",0.0],["NEW","常溫","BEYOĞLU DUBACO MINI 杜拜巧克力 125g","BEYOĞLU DUBACO MINI Dubai Chocolate","125g","",24,0,365,"土耳其","USD","EXW","BEYOĞLU","收佣金","TDS清帳",4.484,"郵件新增","","","巧克力",0.0],["NEW","常溫","BEYOĞLU DUBACO 杜拜巧克力 200g","BEYOĞLU DUBACO Dubai Chocolate","200g","",6,0,365,"土耳其","USD","EXW","BEYOĞLU","收佣金","TDS清帳",3.894,"郵件新增","","","巧克力",0.0],["NEW","常溫","BEYOĞLU DUBACO 杜拜巧克力 95g","BEYOĞLU DUBACO Dubai Chocolate","95g","",6,0,365,"土耳其","USD","EXW","BEYOĞLU","收佣金","TDS清帳",1.8526,"郵件新增","","","巧克力",0.0],["NEW","常溫","BEYOĞLU DUBACO 杜拜巧克力 35g","BEYOĞLU DUBACO Dubai Chocolate","35g","",24,0,365,"土耳其","USD","EXW","BEYOĞLU","收佣金","TDS清帳",0.6372,"郵件新增","","","巧克力",0.0],["NEW","常溫","BEYOĞLU DUBACO DARK 杜拜黑巧克力 200g","BEYOĞLU DUBACO DARK Dubai Chocolate","200g","",6,0,365,"土耳其","USD","EXW","BEYOĞLU","收佣金","TDS清帳",3.5282,"郵件新增","","","巧克力",0.0],["NEW","常溫","BEYOĞLU DUBACO DARK 杜拜黑巧克力 95g","BEYOĞLU DUBACO DARK Dubai Chocolate","95g","",6,0,365,"土耳其","USD","EXW","BEYOĞLU","收佣金","TDS清帳",1.7936,"郵件新增","","","巧克力",0.0],["NEW","常溫","TYMBARK 燕麥杏仁奶 1L","TYMBARK Plant Based Oat-Almond Drink 1L","1L","NRTYPLK1L0OMG06003",6,0,365,"波蘭","EUR","EXW","Maspex","買進","訂金30%, BL 70%",1.829,"郵件新增","","1 FTL 20'","植物奶",0.0],["NEW","常溫","TYMBARK 燕麥奶 1L","TYMBARK Plant Based Oat Drink 1L","1L","NRTYPLK1L0OWS06003",6,0,365,"波蘭","EUR","EXW","Maspex","買進","訂金30%, BL 70%",1.6402,"郵件新增","","1 FTL 20'","植物奶",0.0],["NEW","常溫","TYMBARK 燕麥椰子奶 500ml","TYMBARK Plant Based Oat-Coconut Drink 500ml","500ml","NRTYPLK500OKO06003",6,0,365,"波蘭","EUR","EXW","Maspex","買進","訂金30%, BL 70%",1.0502,"郵件新增","","1 FTL 20'","植物奶",0.0],["NEW","常溫","TYMBARK 燕麥榛果奶 500ml","TYMBARK Plant Based Oat-Hazelnut Drink 500ml","500ml","NRTYPLK500OOL06003",6,0,365,"波蘭","EUR","EXW","Maspex","買進","訂金30%, BL 70%",1.0502,"郵件新增","","1 FTL 20'","植物奶",0.0],["NEW","常溫","TYMBARK 燕麥奶 500ml","TYMBARK Plant Based Oat Drink 500ml","500ml","NRTYPLK500OWS06003",6,0,365,"波蘭","EUR","EXW","Maspex","買進","訂金30%, BL 70%",0.9322,"郵件新增","","1 FTL 20'","植物奶",0.0],["NEW","常溫","Van Pur Donner Strong 啤酒","Donner Strong Beer 0.5L Can","500ml*24","5900535001594",24,72,180,"波蘭","Euro","EXW","Van Pur","買進","訂金30%, BL 70%",0,"郵件新增","","1 FTL 20'","啤酒",0.0],["NEW","常溫","Van Pur Roger 啤酒","Roger Beer 0.5L Can","500ml*24","5900535022391",24,72,180,"波蘭","Euro","EXW","Van Pur","買進","訂金30%, BL 70%",0,"郵件新增","","1 FTL 20'","啤酒",0.0],["NEW","常溫","Brok Lager 5.0% 啤酒","Brok Lager 5.0% 0.5L Can","500ml*24","",24,72,180,"波蘭","Euro","EXW","Van Pur","買進","訂金30%, BL 70%",0,"郵件新增","","1 FTL 20'","啤酒",0.0],["NEW","常溫","Polska Roza NFC 100%果汁","Polska Roza NFC 100% Fruit Juice","待確認","",0,0,365,"波蘭","Euro","EXW","Polska Roza","收佣金","TDS清帳",0,"郵件新增","","2 pallets/SKU","果汁",0.0],["NEW","常溫","Sternburg Lager 5% 啤酒","Sternburg Lager 5% 0.5L Can","500ml*24","",24,72,180,"德國","Euro","EXW","Sternburg","收佣金","TDS清帳",0.3422,"郵件新增","","","啤酒",0.0],["NEW","常溫","Sternburg Wheat Beer 4.8%","Sternburg Wheat Beer 4.8% 0.5L Can","500ml*24","",24,72,180,"德國","Euro","EXW","Sternburg","收佣金","TDS清帳",0.3422,"郵件新增","","","啤酒",0.0],["NEW","常溫","Sternburg Alcoholfree <0.5%","Sternburg Alcoholfree <0.5% 0.5L Can","500ml*24","",24,72,180,"德國","Euro","EXW","Sternburg","收佣金","TDS清帳",0.3186,"郵件新增","","","啤酒",0.0],["NEW","常溫","Maina Panettone 原味 100g","Maina Panettone without Candied Citrus 100g","100g","",36,672,365,"義大利","Euro","FOB","Maina","收佣金","TDS清帳",1.1564,"郵件新增","","","節慶糕點",0.0],["NEW","常溫","Maina Panettone 巧克力 100g","Maina Panettone with Chocolate 100g","100g","",36,672,365,"義大利","Euro","FOB","Maina","收佣金","TDS清帳",1.1564,"郵件新增","","","節慶糕點",0.0],["NEW","常溫","Homhual 有果肉椰子水 310ml","Homhual Thai Coconut Water with Pulp 310ml*24","310ml*24","",24,0,730,"泰國","USD","FOB","Homhual","買進","訂金30%, BL 70%",13.452,"郵件新增","","2,100箱/20'","椰子水",0.0],["NEW","常溫","Homhual 無果肉椰子水 310ml","Homhual Thai Coconut Water without Pulp 310ml*24","310ml*24","",24,0,730,"泰國","USD","FOB","Homhual","買進","訂金30%, BL 70%",13.039,"郵件新增","","2,100箱/20'","椰子水",0.0],["NEW","冷凍","Amazons4u Açaí 冰沙果泥 (含巴西莓)","Amazons4u Açaí Purée with Guaraná","待確認","",0,0,365,"巴西","USD","EXW","Amazons4u","收佣金","TDS清帳",0,"郵件新增","","","冷凍蔬果",0.0],["NEW","常溫","Coppini DOP Terra di Bari Bitonto特級初榨橄欖油 500ml (130箱/板)","Coppini DOP Terra di Bari Bitonto Extra Virgin Olive Oil 500ml","500ml","",12,130,730,"義大利","Euro","CIF","Coppini","收佣金","TDS清帳",5.2274,"郵件新增","","1 FTL 20' (130箱/板)","橄欖油",0.0],["NEW","常溫","Coppini DOP Terra di Bari Bitonto特級初榨橄欖油 500ml (72箱/板)","Coppini DOP Terra di Bari Bitonto Extra Virgin Olive Oil 500ml","500ml","",12,72,730,"義大利","Euro","CIF","Coppini","收佣金","TDS清帳",6.4192,"郵件新增","","1 FTL 20' (72箱/板)","橄欖油",0.0],["NEW","常溫","FruitMania 蔓越莓乾 30g","FruitMania Dried Cranberries 30g","30g*24","",24,0,365,"泰國","USD","FOB","FruitMania","買進","訂金30%, BL 70%",0,"郵件新增","","","堅果/乾果",0.0],["NEW","常溫","FruitMania 蜜棗乾 30g","FruitMania Pitted Prunes 30g","30g*24","",24,0,365,"泰國","USD","FOB","FruitMania","買進","訂金30%, BL 70%",0,"郵件新增","","","堅果/乾果",0.0],["NEW","常溫","Luong GIA 越南乾果 50g","Luong GIA Vietnam Dried Fruit 50g","50g","",0,0,365,"越南","USD","FOB","Luong GIA","買進","訂金30%, BL 70%",0,"郵件新增","","","堅果/乾果",0.0],["NEW","常溫","Luong GIA 越南乾果 100g","Luong GIA Vietnam Dried Fruit 100g","100g","",0,0,365,"越南","USD","FOB","Luong GIA","買進","訂金30%, BL 70%",0,"郵件新增","","","堅果/乾果",0.0],["NEW","常溫","Prinze Snacks 泰國蝦零食","Prinze Snacks Thailand Shrimp Snacks","待確認","",0,0,365,"泰國","USD","FOB","Prinze Snacks","買進","訂金30%, BL 70%",0,"郵件新增","","","零食",0.0],["NEW","常溫","Sun Grains 菲律賓穀物零食","Sun Grains Philippines Grain Snacks","待確認","",0,0,365,"菲律賓","USD","FOB","Sun Grains","買進","訂金30%, BL 70%",0,"郵件新增","","","零食",0.0],["NEW","常溫","Yarra Valley Hilltop 澳洲乳製品","Yarra Valley Hilltop Dairy Products","待確認","",0,0,180,"澳洲","USD","EXW","Yarra Valley","買進","訂金30%, BL 70%",0,"郵件新增","","","乳製品",0.0],["NEW","冷凍","Gusto Sorrento 義大利冷凍Pizza","Gusto Sorrento Frozen Pizza","待確認","",0,0,365,"義大利","Euro","EXW","Gusto Sorrento","收佣金","TDS清帳",0,"郵件新增","PX Mart / 全通路","1 FTL 20'","冷凍Pizza",0.0],["NEW","常溫","Terre Francescane EVOO 500ml 綠色圓筒","Terre Francescane Extra Virgin Olive Oil 500ml","500ml","",12,1080,730,"義大利","Euro","CIF","Terre Francescane","收佣金","TDS清帳",6.4782,"郵件新增","","","橄欖油",0.0],["SP100010","常溫","Primitivo Puglia  IGT IL POGGIO DEI VIGNETI (CASA VINICOLA NATALE VERGA SPA)","Primitivo Puglia  IGT IL POGGIO DEI VIGNETI","750ml","8000128003619",100,0,1095,"義大利","Euro","EXW","TDS","收佣金","TDS清帳",2.2656,"PX Mart提案","PX Mart","","葡萄酒",0.0],["SP100010","常溫","Merlot Vino d’Italia IGT IL POGGIO DEI VIGNETI (CASA VINICOLA NATALE VERGA SPA)","Merlot Vino d’Italia IGT IL POGGIO DEI VIGNETI","750ml","8000128005231",100,0,1095,"義大利","Euro","EXW","TDS","收佣金","TDS清帳",1.9824,"PX Mart提案","PX Mart","","葡萄酒",0.0],["SP100010","常溫","Barbera Asti - Piemonte DOCG I BALZI (CASA VINICOLA NATALE VERGA SPA)","Barbera Asti - Piemonte DOCG I BALZI","750ml","8000128164099",84,0,1095,"義大利","Euro","EXW","TDS","收佣金","TDS清帳",3.9648,"PX Mart提案","PX Mart","","葡萄酒",0.0],["SP100010","常溫","Rosso Veneto IGT I BALZI (CASA VINICOLA NATALE VERGA SPA)","Rosso Veneto IGT I BALZI","750ml","8000128164570",84,0,1095,"義大利","Euro","EXW","TDS","收佣金","TDS清帳",4.248,"PX Mart提案","PX Mart","","葡萄酒",0.0],["SP100010","常溫","MOSCATO “NATURA”( Varietal sparkling wine) (VINOPERA S.r.l. Socio Unico)","MOSCATO “NATURA”( Varietal sparkling wine)","750 ml","8007651551969",96,0,1095,"義大利","Euro","EXW","TDS","收佣金","TDS清帳",4.13,"PX Mart提案","PX Mart","","葡萄酒",0.0],["SP100010","常溫","PROSECCO DOC(EXTRA DRY MILLESIMATO) (VINOPERA S.r.l. Socio Unico)","PROSECCO DOC(EXTRA DRY MILLESIMATO)","750 ml","8007651551976",96,0,1095,"義大利","Euro","EXW","TDS","收佣金","TDS清帳",5.546,"PX Mart提案","PX Mart","","葡萄酒",0.0],["SP100010","常溫","SPUMANTE BRUT “NATURA” (Sparkling wine) (VINOPERA S.r.l. Socio Unico)","SPUMANTE BRUT “NATURA” (Sparkling wine)","750 ml","8007651551921",96,0,1095,"義大利","Euro","EXW","TDS","收佣金","TDS清帳",4.13,"PX Mart提案","PX Mart","","葡萄酒",0.0],["SP100010","常溫","Bianco Spumante (Casa Vinicola Morando)","Bianco Spumante","750 ml","",80,0,1095,"義大利","Euro","EXW","TDS","收佣金","TDS清帳",2.124,"PX Mart提案","PX Mart","","葡萄酒",0.0],["SP100010","常溫","PROSECCO DOCG VALDOBBIADENE SUPERIORE MILLESIMATO SPUMANTE (Contarini Vini e Spumanti Srl)","PROSECCO DOCG VALDOBBIADENE SUPERIORE MILLESIMATO SPUMANTE","750 ml","8005400874840",80,0,1095,"義大利","Euro","EXW","TDS","收佣金","TDS清帳",4.602,"PX Mart提案","PX Mart","","葡萄酒",0.0],["SP100010","常溫","PROSECCO DOC TREVISO MILLESIMATO EXTRA DRY SPUMANTE (Contarini Vini e Spumanti Srl)","PROSECCO DOC TREVISO MILLESIMATO EXTRA DRY SPUMANTE","750","8005400904448",80,0,1095,"義大利","Euro","EXW","TDS","收佣金","TDS清帳",3.658,"PX Mart提案","PX Mart","","葡萄酒",0.0],["SP100010","常溫","BLANC DE BLANCS MILLESIMATO EXTRA DRY (Contarini Vini e Spumanti Srl)","BLANC DE BLANCS MILLESIMATO EXTRA DRY","750","8005400004049",80,0,1095,"義大利","Euro","EXW","TDS","收佣金","TDS清帳",2.714,"PX Mart提案","PX Mart","","其他食品",0.0],["SP100010","常溫","DIRUPO VALDOBBIADENE DOCG EXTRA DRY (Azienda Agricola Andreola)","DIRUPO VALDOBBIADENE DOCG EXTRA DRY","750","8033286330303",96,0,1095,"義大利","Euro","EXW","TDS","收佣金","TDS清帳",5.959,"PX Mart提案","PX Mart","","葡萄酒",0.0],["SP100010","常溫","Col di Vite Sparkling Wine (La Tordera)","Col di Vite Sparkling Wine","750","8033011560937",80,0,1095,"義大利","Euro","EXW","TDS","收佣金","TDS清帳",3.54,"PX Mart提案","PX Mart","","葡萄酒",0.0],["SP100010","常溫","Col di Vite Prosecco DOC Extra Dry (La Tordera)","Col di Vite Prosecco DOC Extra Dry","750 ml","8033011560913",80,0,1095,"義大利","Euro","EXW","TDS","收佣金","TDS清帳",4.13,"PX Mart提案","PX Mart","","葡萄酒",0.0],["SP100010","常溫","Col di Vite Prosecco DOC Rosè Millesimita (La Tordera)","Col di Vite Prosecco DOC Rosè Millesimita","750 ml","8033011560920",80,0,1095,"義大利","Euro","EXW","TDS","收佣金","TDS清帳",4.13,"PX Mart提案","PX Mart","","葡萄酒",0.0],["SP100010","常溫","Prosecco DOC Spumante Extra Dry (Terre dei Buth)","Prosecco DOC Spumante Extra Dry","750","80 5274049 452 8",80,0,1095,"義大利","Euro","EXW","TDS","收佣金","TDS清帳",3.953,"PX Mart提案","PX Mart","","葡萄酒",0.0],["SP100010","常溫","PROSECCO DOC - Spumante BRUT (Terre dei Buth)","PROSECCO DOC - Spumante BRUT","750","80 5274049 453 5",80,0,1095,"義大利","Euro","EXW","TDS","收佣金","TDS清帳",3.953,"PX Mart提案","PX Mart","","葡萄酒",0.0],["SP100010","常溫","Prosecco DOC Rosé Spumante BrutMillesimato (Terre dei Buth)","Prosecco DOC Rosé Spumante BrutMillesimato","750","80 5274049 652 2",80,0,1095,"義大利","Euro","EXW","TDS","收佣金","TDS清帳",4.366,"PX Mart提案","PX Mart","","葡萄酒",0.0],["SP100010","常溫","Prosecco DOC Frizzante (Terre dei Buth)","Prosecco DOC Frizzante","750","Crown cap: 80 5274049 455 9\nString closure \"spago\": 80 5274049 456 6",80,0,1095,"義大利","Euro","EXW","TDS","收佣金","TDS清帳",0,"PX Mart提案","PX Mart","","葡萄酒",0.0],["SP100010","常溫","Prosecco DOC extra dry \"Bollo rosso\" (San Martino Vini)","Prosecco DOC extra dry \"Bollo rosso\"","750 ml","",96,0,1095,"義大利","Euro","EXW","TDS","收佣金","TDS清帳",3.186,"PX Mart提案","PX Mart","","葡萄酒",0.0],["SP100010","常溫","Prosecco DOC brut \"99\" (San Martino Vini)","Prosecco DOC brut \"99\"","750ml","",96,0,1095,"義大利","Euro","EXW","TDS","收佣金","TDS清帳",3.186,"PX Mart提案","PX Mart","","葡萄酒",0.0],["SP100010","常溫","Prosecco DOC Treviso millesimato extra dry (San Martino Vini)","Prosecco DOC Treviso millesimato extra dry","750","",96,0,1095,"義大利","Euro","EXW","TDS","收佣金","TDS清帳",3.363,"PX Mart提案","PX Mart","","葡萄酒",0.0],["SP100010","常溫","Prosecco DOC Treviso millesimato dry (San Martino Vini)","Prosecco DOC Treviso millesimato dry","750","",96,0,1095,"義大利","Euro","EXW","TDS","收佣金","TDS清帳",3.363,"PX Mart提案","PX Mart","","葡萄酒",0.0],["SP100010","常溫","Prosecco DOC Treviso millesimato rose brut (San Martino Vini)","Prosecco DOC Treviso millesimato rose brut","750","",96,0,1095,"義大利","Euro","EXW","TDS","收佣金","TDS清帳",3.481,"PX Mart提案","PX Mart","","葡萄酒",0.0],["SP100010","常溫","Prosecco Superiore Conegliano-Valdobbiadene DOCG millesimato extra dry (San Martino Vini)","Prosecco Superiore Conegliano-Valdobbiadene DOCG millesimato extra dry","750","",96,0,1095,"義大利","Euro","EXW","TDS","收佣金","TDS清帳",4.248,"PX Mart提案","PX Mart","","葡萄酒",0.0],["SP100010","常溫","Prosecco DOC brut (Beavita)","Prosecco DOC brut","750","",85,0,1095,"義大利","Euro","EXW","TDS","收佣金","TDS清帳",3.54,"PX Mart提案","PX Mart","","葡萄酒",0.0],["SP100010","常溫","Prosecco Superiore Conegliano-Valdobbiadene DOCG extra dry (Beavita)","Prosecco Superiore Conegliano-Valdobbiadene DOCG extra dry","750","",85,0,1095,"義大利","Euro","EXW","TDS","收佣金","TDS清帳",4.484,"PX Mart提案","PX Mart","","葡萄酒",0.0],["NEW","常溫","Finca Las Zarras Basic quality dry red 11% (Bodegas Milenium S.L.)","Finca Las Zarras Basic quality dry red 11%","750ml","8413060743503",75,0,1095,"西班牙","Euro","EXW","Bodegas Milenium","買進","訂金30%, BL 70%",1.062,"PX Mart提案","PX Mart","","葡萄酒",0.0],["NEW","常溫","Finca Las ZaBasic quality dry white 11% (Bodegas Milenium S.L.)","Finca Las ZaBasic quality dry white 11%","750 ml","8413060012227",75,0,1095,"西班牙","Euro","EXW","Bodegas Milenium","買進","訂金30%, BL 70%",1.0974,"PX Mart提案","PX Mart","","葡萄酒",0.0],["NEW","常溫","Vespertino Tempranillo, red 13% (Bodegas Milenium S.L.)","Vespertino Tempranillo, red 13%","750ml","8413060743527",75,0,1095,"西班牙","Euro","EXW","Bodegas Milenium","買進","訂金30%, BL 70%",1.357,"PX Mart提案","PX Mart","","葡萄酒",0.0],["NEW","常溫","Vespertino Macabeo 11,5% (Bodegas Milenium S.L.)","Vespertino Macabeo 11,5%","750ml","8413060743473",75,0,1095,"西班牙","Euro","EXW","Bodegas Milenium","買進","訂金30%, BL 70%",1.475,"PX Mart提案","PX Mart","","葡萄酒",0.0],["NEW","常溫","Viña Dante Standard quality Red 11% (Bodegas Milenium S.L.)","Viña Dante Standard quality Red 11%","3L","8413060749727",90,0,1095,"西班牙","Euro","EXW","Bodegas Milenium","買進","訂金30%, BL 70%",4.071,"PX Mart提案","PX Mart","","葡萄酒",0.0],["NEW","常溫","Viña Dante Standard quality White dry 11% (Bodegas Milenium S.L.)","Viña Dante Standard quality White dry 11%","3L","8413060749703",90,0,1095,"西班牙","Euro","EXW","Bodegas Milenium","買進","訂金30%, BL 70%",4.366,"PX Mart提案","PX Mart","","葡萄酒",0.0],["SP100010","常溫","Polska Roza 免疫能量飲 250ml","Shot for immunity 250ml","250ml","5902768174540",6,220,540,"波蘭","EUR","EXW","Polska Roza","收佣金","TDS清帳",2.3482,"郵件新增","","2 pallets/SKU","機能飲料",0.0],["SP100010","常溫","Polska Roza 波蘭果物免疫飲 250ml","Shot for immunity polish fruits 250ml","250ml","5905072471312",6,220,540,"波蘭","EUR","EXW","Polska Roza","收佣金","TDS清帳",2.3482,"郵件新增","","2 pallets/SKU","機能飲料",0.0],["SP100010","常溫","Polska Roza 抗氧化能量飲 250ml","Shot antioxidants 250ml","250ml","5905072471329",6,220,540,"波蘭","EUR","EXW","Polska Roza","收佣金","TDS清帳",2.3482,"郵件新增","","2 pallets/SKU","機能飲料",0.0],["SP100010","常溫","Polska Roza 蔓越莓泌尿飲 250ml","Shot uro-cranberry 250ml","250ml","5905072471404",6,220,540,"波蘭","EUR","EXW","Polska Roza","收佣金","TDS清帳",2.3482,"郵件新增","","2 pallets/SKU","機能飲料",0.0],["SP100010","常溫","Polska Roza 美麗膠原蛋白飲 250ml","Beauty elixir Collagen Vitamin C 250ml","250ml","5905072471237",8,162,540,"波蘭","EUR","EXW","Polska Roza","收佣金","TDS清帳",3.776,"郵件新增","","2 pallets/SKU","機能飲料",0.0],["SP100010","常溫","Polska Roza 健康關節膠原蛋白飲 250ml","Healthy joints Collagen Vitamin C 250ml","250ml","5905072471275",8,162,540,"波蘭","EUR","EXW","Polska Roza","收佣金","TDS清帳",3.776,"郵件新增","","2 pallets/SKU","機能飲料",0.0],["SP100010","常溫","Polska Roza 白茶水蜜桃飲 250ml","White tea with peach 250ml","250ml","5905072471893",6,220,540,"波蘭","EUR","EXW","Polska Roza","收佣金","TDS清帳",0.944,"郵件新增","","2 pallets/SKU","即飲茶",0.0],["SP100010","常溫","Polska Roza 茉莉接骨木綠茶 250ml","Jasmine green with elderflower 250ml","250ml","5905072471916",6,220,540,"波蘭","EUR","EXW","Polska Roza","收佣金","TDS清帳",0.944,"郵件新增","","2 pallets/SKU","即飲茶",0.0],["SP100010","常溫","Polska Roza 瑪黛茶萊姆飲 250ml","Yerba mate with lime 250ml","250ml","5905072471879",6,220,540,"波蘭","EUR","EXW","Polska Roza","收佣金","TDS清帳",0.944,"郵件新增","","2 pallets/SKU","即飲茶",0.0],["SP100010","常溫","Polska Roza 玫瑰抹茶飲 250ml","Rose matcha 250ml","250ml","5905072471909",6,220,540,"波蘭","EUR","EXW","Polska Roza","收佣金","TDS清帳",0.944,"郵件新增","","2 pallets/SKU","即飲茶",0.0],["SP100010","常溫","Polska Roza 南非國寶茶柳橙飲 250ml","Rooibos with orange 250ml","250ml","5905072471886",6,220,540,"波蘭","EUR","EXW","Polska Roza","收佣金","TDS清帳",0.944,"郵件新增","","2 pallets/SKU","即飲茶",0.0],["SP100010","常溫","Polska Roza 萊姆檸檬水 250ml","Lime lemonade 250ml","250ml","5905072471848",6,220,540,"波蘭","EUR","EXW","Polska Roza","收佣金","TDS清帳",0.8496,"郵件新增","","2 pallets/SKU","氣泡飲料",0.0],["SP100010","常溫","Polska Roza 玫瑰檸檬水 250ml","Rose lemonade 250ml","250ml","5905072471855",6,220,540,"波蘭","EUR","EXW","Polska Roza","收佣金","TDS清帳",0.8496,"郵件新增","","2 pallets/SKU","氣泡飲料",0.0],["SP100010","常溫","Polska Roza 接骨木花檸檬水 250ml","Elderflower lemonade 250ml","250ml","5905072471862",6,220,540,"波蘭","EUR","EXW","Polska Roza","收佣金","TDS清帳",0.8496,"郵件新增","","2 pallets/SKU","氣泡飲料",0.0],["SP100010","常溫","Polska Roza 覆盆子檸檬水 250ml","Raspberry with lemon lemonade 250ml","250ml","5905072471831",6,220,540,"波蘭","EUR","EXW","Polska Roza","收佣金","TDS清帳",0.8496,"郵件新增","","2 pallets/SKU","氣泡飲料",0.0],["SP100010","常溫","Polska Roza 玫瑰果汁 250ml","Rosehip juice 250ml","250ml","5902768174267",8,162,540,"波蘭","EUR","EXW","Polska Roza","收佣金","TDS清帳",2.3246,"郵件新增","","2 pallets/SKU","果汁",0.0],["SP100010","常溫","Polska Roza 石榴NFC果汁 250ml","Pomegranate 100% NFC juice 250ml","250ml","5905072471824",6,220,540,"波蘭","EUR","EXW","Polska Roza","收佣金","TDS清帳",2.1122,"郵件新增","","2 pallets/SKU","果汁",0.0],["SP100010","常溫","Polska Roza 玫瑰果汁 500ml","Rosehip juice 500ml","500ml","5902768174304",6,120,540,"波蘭","EUR","EXW","Polska Roza","收佣金","TDS清帳",5.3926,"郵件新增","","2 pallets/SKU","果汁",0.0],["SP100010","常溫","Polska Roza 覆盆子果汁 500ml","Raspberry juice 500ml","500ml","5902768174335",6,120,540,"波蘭","EUR","EXW","Polska Roza","收佣金","TDS清帳",5.3926,"郵件新增","","2 pallets/SKU","果汁",0.0],["SP100010","常溫","Polska Roza 藍莓果汁 500ml","Blueberry juice 500ml","500ml","5902768174359",6,120,540,"波蘭","EUR","EXW","Polska Roza","收佣金","TDS清帳",6.136,"郵件新增","","2 pallets/SKU","果汁",0.0],["SP100010","常溫","Polska Roza 蔓越莓果汁 500ml","Cranberry juice 500ml","500ml","5902768174328",6,120,540,"波蘭","EUR","EXW","Polska Roza","收佣金","TDS清帳",6.136,"郵件新增","","2 pallets/SKU","果汁",0.0],["SP100010","常溫","Polska Roza 沙棘果汁 500ml","Sea buckthorn juice 500ml","500ml","5902768174311",6,120,540,"波蘭","EUR","EXW","Polska Roza","收佣金","TDS清帳",6.136,"郵件新增","","2 pallets/SKU","果汁",0.0],["SP100010","常溫","Polska Roza 薑黃果汁 500ml","Turmeric juice 500ml","500ml","5902768174908",6,120,540,"波蘭","EUR","EXW","Polska Roza","收佣金","TDS清帳",5.7584,"郵件新增","","2 pallets/SKU","果汁",0.0],["SP100010","常溫","Polska Roza 蕁麻果汁 500ml","Nettle juice 500ml","500ml","5902768174649",6,120,540,"波蘭","EUR","EXW","Polska Roza","收佣金","TDS清帳",4.9206,"郵件新增","","2 pallets/SKU","果汁",0.0],["SP100010","常溫","Polska Roza 黑果花楸果汁 500ml","Chokeberry juice 500ml","500ml","5902768174342",6,120,540,"波蘭","EUR","EXW","Polska Roza","收佣金","TDS清帳",4.484,"郵件新增","","2 pallets/SKU","果汁",0.0],["SP100010","常溫","Polska Roza 接骨木果汁 500ml","Elderberry juice 500ml","500ml","5902768174434",6,120,540,"波蘭","EUR","EXW","Polska Roza","收佣金","TDS清帳",4.484,"郵件新增","","2 pallets/SKU","果汁",0.0],["SP100010","常溫","Polska Roza 薑汁 500ml","Ginger juice 500ml","500ml","5902768174915",6,120,540,"波蘭","EUR","EXW","Polska Roza","收佣金","TDS清帳",5.1448,"郵件新增","","2 pallets/SKU","果汁",0.0],["SP100010","常溫","Polska Roza 紅石榴果汁 500ml","Pomegranate juice 500ml","500ml","5905072471008",6,120,540,"波蘭","EUR","EXW","Polska Roza","收佣金","TDS清帳",4.0592,"郵件新增","","2 pallets/SKU","果汁",0.0],["SP100010","常溫","Polska Roza 有機玫瑰果汁 250ml","Organic rosehip juice 250ml","250ml","5902768174052",8,162,540,"波蘭","EUR","EXW","Polska Roza","收佣金","TDS清帳",2.9736,"郵件新增","","2 pallets/SKU","果汁",0.0],["SP100010","常溫","Polska Roza 有機覆盆子果汁 250ml","Organic raspberry juice 250ml","250ml","5902768174236",8,162,540,"波蘭","EUR","EXW","Polska Roza","收佣金","TDS清帳",2.9736,"郵件新增","","2 pallets/SKU","果汁",0.0],["NEW","冷凍","Gusto Sorrento 番茄起司迷你披薩 2x150g","PIZZETTA Tomato & Mozzarella 2x150g","2x150g","",12,60,365,"義大利","Euro","FOB","Gusto Sorrento","收佣金","TDS清帳",2.006,"郵件新增","PX Mart / 全通路","1 FTL 20'","冷凍Pizza",0.0],["NEW","冷凍","Gusto Sorrento 番茄起司披薩片 2x160g","TRANCIOTOTTO Tomato & Mozzarella 2x160g","2x160g","",12,63,365,"義大利","Euro","FOB","Gusto Sorrento","收佣金","TDS清帳",2.242,"郵件新增","PX Mart / 全通路","1 FTL 20'","冷凍Pizza",0.0],["NEW","冷凍","Gusto Sorrento 烤蔬菜披薩片 2x185g","TRANCIOTOTTO Grilled Vegetables 2x185g","2x185g","",12,63,365,"義大利","Euro","FOB","Gusto Sorrento","收佣金","TDS清帳",2.301,"郵件新增","PX Mart / 全通路","1 FTL 20'","冷凍Pizza",0.0],["NEW","常溫","Bauli Mini 原味聖誕麵包 90g","Bauli Mini Classic Panettone 90g","90g","",0,0,270,"義大利","Euro","FCA","Bauli","收佣金","TDS清帳",1.1446,"郵件新增","PX Mart / 全通路","2 containers","節慶糕點",0.0],["NEW","常溫","Bauli Mini 巧克力豆聖誕麵包 90g","Bauli Mini Choco Chips Panettone 90g","90g","",0,0,270,"義大利","Euro","FCA","Bauli","收佣金","TDS清帳",1.357,"郵件新增","PX Mart / 全通路","2 containers","節慶糕點",0.0],["NEW","常溫","TYMBARK 燕麥開心果奶 500ml","TYMBARK oat-pistachio Plant Drink 6*0.5L","500ml","NRTYPLK500OPI06",6,0,365,"波蘭","EUR","EXW","Maspex","買進","訂金30%, BL 70%",1.5104,"郵件新增","","1板/SKU (最少20,000件≈1 FTL 40')","植物奶",0.0],["NEW","常溫","TYMBARK 燕麥香草奶 500ml","TYMBARK JUST PLANTS Oat-Vanilla Plant Drink 6*0.5L","500ml","NRTYPLK500OWW06",6,0,365,"波蘭","EUR","EXW","Maspex","買進","訂金30%, BL 70%",1.5104,"郵件新增","","1板/SKU (最少20,000件≈1 FTL 40')","植物奶",0.0],["NEW","冷凍","森林莓雪酪","Menodiciotto Forest Berry Sorbet","不明","8032584931298",6,0,540,"義大利","Euro","EXW","Menodiciotto","買進","訂金30%, BL 70%",14.16,"已進口","","","冰淇淋",0.0],["NEW","冷凍","百香果雪酪","Menodiciotto Passion Fruit Sorbet","不明","8032584931359",6,0,540,"義大利","Euro","EXW","Menodiciotto","買進","訂金30%, BL 70%",14.16,"已進口","","","冰淇淋",0.0],["SP100013","常溫","GoMuc 脆魚皮-鹹蛋口味 30g","GoMuc Crispy Fish Skin (Salted Egg Flavor) 30g","30g","",24,0,365,"泰國","USD","FOB","GoMuc","買進","訂金30%, BL 70%",17.818,"郵件新增","","100箱","魚類零食",0.0],["SP100013","常溫","GoMuc 脆魚皮-泰式酸辣口味 30g","GoMuc Crispy Fish Skin (Tom Yum Flavor) 30g","30g","",24,0,365,"泰國","USD","FOB","GoMuc","買進","訂金30%, BL 70%",17.818,"郵件新增","","100箱","魚類零食",0.0],["SP100013","常溫","GoMuc 脆魚皮-麻辣口味 30g","GoMuc Crispy Fish Skin (Mala Flavor) 30g","30g","",24,0,365,"泰國","USD","FOB","GoMuc","買進","訂金30%, BL 70%",17.818,"郵件新增","","100箱","魚類零食",0.0],["NEW","常溫","FruitMania 椰棗 30g","FruitMania Pitted Deglet Nour Dates 30g","30g","",24,0,365,"泰國","USD","FOB","FruitMania","買進","訂金30%, BL 70%",9.027,"郵件新增","東森","50,000件/SKU（自有品牌印刷包裝）","堅果/乾果",0.0],["NEW","常溫","FruitMania 奇異果乾 38g","FruitMania Dehydrated Kiwi 38g","38g","",24,0,365,"泰國","USD","FOB","FruitMania","買進","訂金30%, BL 70%",9.912,"郵件新增","東森","50,000件/SKU（自有品牌印刷包裝）","堅果/乾果",0.0],["NEW","常溫","FruitMania 去籽西梅 30g","FruitMania Pitted Prunes 30g","30g","",24,0,365,"泰國","USD","FOB","FruitMania","買進","訂金30%, BL 70%",10.797,"郵件新增","東森","50,000件/SKU（自有品牌印刷包裝）","堅果/乾果",0.0],["NEW","常溫","FruitMania 蔓越莓乾 30g","FruitMania Dried Cranberries 30g","30g","",24,0,365,"泰國","USD","FOB","FruitMania","買進","訂金30%, BL 70%",10.325,"郵件新增","東森","50,000件/SKU（自有品牌印刷包裝）","堅果/乾果",0.0],["SP200002","冷凍","迷你橄欖佛卡夏 110g","Olives Mini Focaccia 110g","110g","62459",36,55,365,"西班牙","Euro","CIF","Europastry","買進","BL 60天",1.3395,"郵件新增","星巴克","3板","冷凍烘焙",69.21],["SP200002","冷凍","迷你四起司佛卡夏 105g","4 Cheese Mini Focaccia 105g","105g","62451",36,55,365,"西班牙","Euro","CIF","Europastry","買進","BL 60天",1.3281,"郵件新增","星巴克","3板","冷凍烘焙",68.64],["NEW","常溫","白肉鮪魚碎肉大豆油罐 185g","Canned White meat TONGOL Tuna FLAKES in Soybean oil","185g","",48,0,0,"泰國","USD","FOB","Luck Siam Global","買進","TT 30% in advance, balance against scan of shipping documents",44.84,"郵件新增","全通路","1x20ft FCL（1,800 cartons）","其他食品",0.0],["NEW","常溫","OLIDI 特級初榨橄欖油噴霧 200ml","OLIDI Extra Virgin Olive Oil Spray 200ml","200ml","",0,0,720,"義大利","Euro","EXW","OLIDI / Alimentare Italiana","收佣金","TDS清帳",2.891,"郵件新增","PX Mart / 全通路","1 pallet/item","橄欖油",0.0],["NEW","常溫","OLIDI 蒜味橄欖油噴霧 200ml","OLIDI Garlic Olive Oil Spray 200ml","200ml","",0,0,720,"義大利","Euro","EXW","OLIDI / Alimentare Italiana","收佣金","TDS清帳",3.0444,"郵件新增","PX Mart / 全通路","1 pallet/item","橄欖油",0.0],["NEW","常溫","OLIDI 辣椒味橄欖油噴霧 200ml","OLIDI Chili Olive Oil Spray 200ml","200ml","",0,0,720,"義大利","Euro","EXW","OLIDI / Alimentare Italiana","收佣金","TDS清帳",3.0444,"郵件新增","PX Mart / 全通路","1 pallet/item","橄欖油",0.0],["NEW","常溫","OLIDI 羅勒味橄欖油噴霧 200ml","OLIDI Basil Olive Oil Spray 200ml","200ml","",0,0,720,"義大利","Euro","EXW","OLIDI / Alimentare Italiana","收佣金","TDS清帳",3.0444,"郵件新增","PX Mart / 全通路","1 pallet/item","橄欖油",0.0],["NEW","常溫","OLIDI 檸檬味橄欖油噴霧 200ml","OLIDI Lemon Olive Oil Spray 200ml","200ml","",0,0,720,"義大利","Euro","EXW","OLIDI / Alimentare Italiana","收佣金","TDS清帳",3.0916,"郵件新增","PX Mart / 全通路","1 pallet/item","橄欖油",0.0],["NEW","常溫","OLIDI 黑松露味橄欖油噴霧 200ml","OLIDI Black Truffle Olive Oil Spray 200ml","200ml","",0,0,720,"義大利","Euro","EXW","OLIDI / Alimentare Italiana","收佣金","TDS清帳",3.2332,"郵件新增","PX Mart / 全通路","1 pallet/item","橄欖油",0.0],["NEW","常溫","OLIDI 特級初榨橄欖油噴霧 400ml","OLIDI Extra Virgin Olive Oil Spray 400ml","400ml","",0,0,720,"義大利","Euro","EXW","OLIDI / Alimentare Italiana","收佣金","TDS清帳",4.5902,"郵件新增","PX Mart / 全通路","1 pallet/item","橄欖油",0.0],["NEW","常溫","OLIDI 蒜味橄欖油噴霧 400ml","OLIDI Garlic Olive Oil Spray 400ml","400ml","",0,0,720,"義大利","Euro","EXW","OLIDI / Alimentare Italiana","收佣金","TDS清帳",4.8852,"郵件新增","PX Mart / 全通路","1 pallet/item","橄欖油",0.0],["NEW","常溫","OLIDI 辣椒味橄欖油噴霧 400ml","OLIDI Chili Olive Oil Spray 400ml","400ml","",0,0,720,"義大利","Euro","EXW","OLIDI / Alimentare Italiana","收佣金","TDS清帳",4.8852,"郵件新增","PX Mart / 全通路","1 pallet/item","橄欖油",0.0],["NEW","常溫","OLIDI 羅勒味橄欖油噴霧 400ml","OLIDI Basil Olive Oil Spray 400ml","400ml","",0,0,720,"義大利","Euro","EXW","OLIDI / Alimentare Italiana","收佣金","TDS清帳",4.8852,"郵件新增","PX Mart / 全通路","1 pallet/item","橄欖油",0.0],["NEW","常溫","OLIDI 檸檬味橄欖油噴霧 400ml","OLIDI Lemon Olive Oil Spray 400ml","400ml","",0,0,720,"義大利","Euro","EXW","OLIDI / Alimentare Italiana","收佣金","TDS清帳",4.9914,"郵件新增","PX Mart / 全通路","1 pallet/item","橄欖油",0.0],["NEW","常溫","OLIDI 黑松露味橄欖油噴霧 400ml","OLIDI Black Truffle Olive Oil Spray 400ml","400ml","",0,0,720,"義大利","Euro","EXW","OLIDI / Alimentare Italiana","收佣金","TDS清帳",5.2628,"郵件新增","PX Mart / 全通路","1 pallet/item","橄欖油",0.0]];
+const CUSTS=[{"name":"星巴克","pay":"月結30天","opts":["月結30天"],"twd":true},{"name":"家福 (Carrefour)","pay":"月結65天","opts":["月結65天"],"twd":true},{"name":"台灣生活良好","pay":"BL 75天","opts":["BL 75天","50%訂單, 50% BL 60天"]},{"name":"美廉社","pay":"BL 60天","opts":["BL 60天","BL 45天"]},{"name":"東森","pay":"LC 90天","opts":["LC 90天"]},{"name":"桂冠","pay":"50%訂單, 50% BL 60天","opts":["50%訂單, 50% BL 60天"]}];
+const INCO=['EXW','FCA','FOB','CFR','CIF','DDP','DAP','CPT'];
+const PAYS=["T/T 30 days","T/T 60 days","T/T 90 days","L/C at sight","LC 90天","D/P","預付款","月結30天","月結45天","月結60天","月結65天","BL 45天","BL 60天","BL 75天","50%訂單, 50% BL 60天"];
+const FLAG={義大利:'🇮🇹',土耳其:'🇹🇷',馬來西亞:'🇲🇾',西班牙:'🇪🇸',泰國:'🇹🇭',印尼:'🇮🇩',中國:'🇨🇳',波蘭:'🇵🇱',德國:'🇩🇪',越南:'🇻🇳',巴西:'🇧🇷',菲律賓:'🇵🇭',澳洲:'🇦🇺'};
+let filtered=[],cart={},isTWD=false;
+const cv={ean:true,cq:true,cp:true,bbd:false,inc:true,pay:true,stat:false};
+const REP_RULES={
+  'Tina Huang':{all:true,note:'全部產品'},
+  'Tina Kao':{all:true,note:'全部產品'},
+  'Noah Tseng':{types:['冷凍'],cats:['非食品'],note:'只可查看冷凍食品及非食品（用品）'}
+};
+
+function init(){
+  document.getElementById('pT').textContent=D.length;
+  const ctrs=[...new Set(D.map(r=>r[9]).filter(Boolean))].sort();
+  const sups=[...new Set(D.map(r=>r[12]).filter(Boolean))].sort();
+  const fc=document.getElementById('fctry'),fs=document.getElementById('fsup');
+  ctrs.forEach(c=>fc.add(new Option((FLAG[c]||'')+' '+c,c)));
+  sups.forEach(s=>fs.add(new Option(s,s)));
+}
+
+// ── 客戶選擇 ──
+// ── TWD / 外幣模式切換 ──
+function updateCurMode(){
+  const bar=document.getElementById('curModeBar');
+  if(isTWD){
+    bar.style.display='block';
+    document.getElementById('qcur').value='TWD';
+    document.getElementById('qcur').disabled=true;
+  } else {
+    bar.style.display='none';
+    document.getElementById('qcur').disabled=false;
+  }
+  // 切換客戶時，自動重設購物車各品項報價為對應底限
+  Object.keys(cart).forEach(idx=>{
+    const r=D[idx];
+    if(isTWD){
+      // TWD模式：有台幣底限用台幣底限，否則清空讓業務自行填
+      cart[idx].price = r[20]>0 ? r[20] : 0;
+    } else {
+      // 外幣模式：用外幣底限
+      cart[idx].price = r[15]>0 ? r[15] : 0;
+    }
+  });
+  if(Object.keys(cart).length) renCart();
+}
+
+function selCust(val){
+  const pc=document.getElementById('payChoice');
+  const of=document.getElementById('otherFields');
+
+  if(val==='__other__'){
+    // 其他：顯示手動輸入欄，隱藏其他
+    of.className='other-fields show';
+    pc.style.display='none';
+    isTWD=false;
+    updateCurMode();
+    document.getElementById('cl').value='';
+    document.getElementById('qpay').value='';
+    document.getElementById('otherName').value='';
+    document.getElementById('otherPay').value='';
+    document.getElementById('otherName').focus();
+    return;
+  }
+
+  // 隱藏其他輸入欄
+  of.className='other-fields';
+
+  const cust=CUSTS.find(c=>c.name===val);
+  // 設定 TWD 模式
+  isTWD = !!(cust&&cust.twd);
+  updateCurMode();
+
+  if(cust){
+    document.getElementById('cl').value=cust.name;
+    const pay=cust.opts[0];
+    document.getElementById('qpay').value=pay;
+    if(cust.opts.length>1){
+      pc.style.display='block';
+      pc.querySelectorAll('.opt').forEach((o,i)=>{
+        o.className='opt'+(i===0?' active':'');
+        o.textContent=cust.opts[i];
+        o.onclick=function(){pickPay(cust.opts[i],this);};
+      });
+    } else {
+      pc.style.display='none';
+    }
+    applyDefaultPay(pay);
+  } else {
+    // 空選項
+    pc.style.display='none';
+    document.getElementById('cl').value='';
+  }
+}
+
+// 其他客戶：同步名稱
+function syncOtherName(){
+  const v=document.getElementById('otherName').value;
+  document.getElementById('cl').value=v;
+}
+
+// 其他客戶：同步付款條件
+function syncOtherPay(){
+  const v=document.getElementById('otherPay').value;
+  document.getElementById('qpay').value=v;
+  applyDefaultPay(v);
+}
+
+function applyDefaultPay(pay){
+  // 同步所有已在購物車的品項
+  Object.keys(cart).map(Number).forEach(idx=>{cart[idx].pay=pay;});
+  if(Object.keys(cart).length)renCart();
+}
+
+function pickPay(pay,el){
+  document.getElementById('qpay').value=pay;
+  document.querySelectorAll('#payChoice .opt').forEach(o=>o.className='opt');
+  el.className='opt active';
+  applyDefaultPay(pay);
+}
+
+// ── 欄位開關 ──
+function togCol(col,show){
+  cv[col]=show;
+  [document.getElementById('h-'+col)].concat([...document.querySelectorAll('.c-'+col)])
+    .forEach(el=>{if(el)el.style.display=show?'':'none';});
+  document.getElementById('t-'+col).className='tgl'+(show?' on':'');
+}
+
+// ── 篩選 ──
+function canViewByRep(r){
+  const rep=document.getElementById('salesRep')?.value||'Tina Huang';
+  const rule=REP_RULES[rep]||REP_RULES['Tina Huang'];
+  if(rule.all)return true;
+  if(rule.types&&rule.types.includes(r[1]))return true;
+  if(rule.cats&&rule.cats.includes(r[19]))return true;
+  return false;
+}
+
+function changeSalesRep(){
+  const rep=document.getElementById('salesRep')?.value||'Tina Huang';
+  const rule=REP_RULES[rep]||REP_RULES['Tina Huang'];
+  document.getElementById('scopeNote').textContent=rule.note;
+  Object.keys(cart).map(Number).forEach(idx=>{
+    if(!canViewByRep(D[idx]))delete cart[idx];
+  });
+  fil();
+  renCart();
+}
+
+function fil(){
+  const q=document.getElementById('fq').value.toLowerCase();
+  const tp=document.getElementById('ftype').value;
+  const ct=document.getElementById('fctry').value;
+  const sp=document.getElementById('fsup').value;
+  const st=document.getElementById('fst').value;
+  filtered=[];
+  D.forEach((r,i)=>{
+    if(!canViewByRep(r))return;
+    if(tp&&r[1]!==tp)return;
+    if(ct&&r[9]!==ct)return;
+    if(sp&&r[12]!==sp)return;
+    if(st&&r[16]!==st)return;
+    const ch=document.getElementById('fch').value;
+    if(ch&&!r[17].includes(ch))return;
+    const cat=document.getElementById('fcat')?.value||'';
+    if(cat&&r[19]!==cat)return;
+    if(q&&!(r[2]+r[3]+r[12]+r[5]).toLowerCase().includes(q))return;
+    filtered.push(i);
+  });
+  document.getElementById('fcnt').textContent=filtered.length+'/'+D.length;
+  renTable();
+}
+
+function sBadge(s){
+  if(s==='PX Mart提案')return'<span class="b bpx">PX</span>';
+  if(s==='郵件新增')return'<span class="b bml">郵件</span>';
+  return'';
+}
+
+// ── 產品表格 ──
+function renTable(){
+  const tb=document.getElementById('pb');tb.innerHTML='';
+  filtered.slice(0,300).forEach(i=>{
+    const r=D[i],inC=cart[i]!==undefined,mp=r[15];
+    const tr=document.createElement('tr');
+    tr.className='row'+(inC?' sel':'');tr.onclick=()=>togCart(i);
+    tr.innerHTML=
+      '<td><span class="b '+(r[1]==='冷凍'?'bf':'bn')+'">'+r[1]+'</span></td>'+
+      '<td><div style="font-weight:600;max-width:145px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+r[2]+'">'+r[2]+'</div>'+
+          '<div style="font-size:10px;color:#999;max-width:145px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+r[4]+' '+sBadge(r[16])+'</div></td>'+
+      '<td style="white-space:nowrap">'+r[4]+'</td>'+
+      '<td style="white-space:nowrap">'+(FLAG[r[9]]||'')+' '+(r[9]||'—')+'</td>'+
+      '<td style="white-space:nowrap;font-size:11px">'+r[12]+'</td>'+
+      '<td class="c-ean" style="font-family:monospace;font-size:10px;color:#666;'+(cv.ean?'':'display:none')+'">'+(r[5]||'—')+'</td>'+
+      '<td class="c-cq" style="text-align:right;'+(cv.cq?'':'display:none')+'">'+(r[6]||'—')+'</td>'+
+      '<td class="c-cp" style="text-align:right;'+(cv.cp?'':'display:none')+'">'+(r[7]||'—')+'</td>'+
+      '<td class="c-bbd" style="text-align:right;'+(cv.bbd?'':'display:none')+'">'+(r[8]||'—')+'</td>'+
+      '<td class="c-inc" style="'+(cv.inc?'':'display:none')+'">'+
+        (r[11]?'<span style="background:#EEF1F8;padding:1px 6px;border-radius:4px;font-size:10px;font-weight:700">'+r[11]+'</span>':'—')+
+      '</td>'+
+      '<td class="c-pay" style="font-size:10px;color:#555;'+(cv.pay?'':'display:none')+'">'+(r[14]||'—')+'</td>'+
+      '<td style="text-align:right">'+(mp>0?'<span class="mp">'+mp.toFixed(4)+'</span>':'<span class="mp-na">—</span>')+'</td>'+
+      '<td style="font-size:11px;color:#888">'+(r[10]||'—')+'</td>'+
+      '<td class="c-stat" style="'+(cv.stat?'':'display:none')+'">'+sBadge(r[16])+'</td>';
+    tb.appendChild(tr);
+  });
+  if(filtered.length>300){
+    const tr=document.createElement('tr');
+    tr.innerHTML='<td colspan="14" style="text-align:center;color:#aaa;padding:10px;font-style:italic">顯示前 300 筆，請篩選縮小（共 '+filtered.length+' 筆）</td>';
+    tb.appendChild(tr);
+  }
+}
+
+function getDefaultPay(){return document.getElementById('qpay').value||'T/T 30 days';}
+
+// ── 購物車 ──
+function togCart(idx){
+  if(!canViewByRep(D[idx]))return alert('此業務員無權限加入此產品。');
+  if(cart[idx]!==undefined){delete cart[idx];}
+  else{const r=D[idx];const initPrice=isTWD&&r[20]>0?r[20]:(r[15]>0?r[15]:0);cart[idx]={qty:1,price:initPrice,inc:r[11]||'CIF',pay:getDefaultPay(),cur:r[10]||'USD'};}
+  renTable();renCart();
+}
+function rmCart(idx){delete cart[idx];renTable();renCart();}
+function updQ(idx,v){if(cart[idx])cart[idx].qty=parseInt(v)||1;renTotal();}
+function updP(idx,v){
+  if(!cart[idx])return;
+  cart[idx].price=parseFloat(v)||0;
+  const r=D[idx],mp=r[15]||0,c=cart[idx];const twdFloor=isTWD&&r[20]>0?r[20]:0;const isE=twdFloor>0?(c.price>0&&c.price<twdFloor):(!isTWD&&mp>0&&c.price>0&&c.price<mp);
+  const qi=document.getElementById('qi'+idx);
+  if(qi){
+    qi.className='qi'+(isE?' err':'');
+    const inp=qi.querySelectorAll('.qi-row input')[1];
+    if(inp)inp.className='iwp'+(isE?' err-inp':'');
+    let et=qi.querySelector('.qi-err');
+    if(isE){if(!et){et=document.createElement('div');et.className='qi-err';qi.appendChild(et);}et.textContent=twdFloor>0?('⚠ 不可低於台幣底限 NT$'+twdFloor.toFixed(0)):'⚠ 不可低於底限 '+mp.toFixed(4)+' '+(r[10]||'');}
+    else if(et)et.remove();
+  }
+  renTotal();
+}
+function updI(idx,v){if(cart[idx])cart[idx].inc=v;}
+function updPay(idx,v){if(cart[idx])cart[idx].pay=v;}
+
+function renCart(){
+  const keys=Object.keys(cart).map(Number);
+  document.getElementById('qcnt').textContent=keys.length;
+  const ql=document.getElementById('ql');
+  if(!keys.length){ql.innerHTML='<div class="empty">← 點擊左側產品列加入報價單</div>';renTotal();return;}
+  ql.innerHTML='';
+  keys.forEach(idx=>{
+    const r=D[idx],c=cart[idx],mp=r[15]||0;
+    const twdFloor=isTWD&&r[20]>0?r[20]:0;
+    const isE=twdFloor>0?(c.price>0&&c.price<twdFloor):(!isTWD&&mp>0&&c.price>0&&c.price<mp);
+    const div=document.createElement('div');
+    div.className='qi'+(isE?' err':'');div.id='qi'+idx;
+    const incoO=INCO.map(t=>'<option value="'+t+'"'+(c.inc===t?' selected':'')+'>'+t+'</option>').join('');
+    const payO=PAYS.map(t=>'<option value="'+t+'"'+(c.pay===t?' selected':'')+'>'+t+'</option>').join('');
+    // 如果購物車的付款條件不在下拉選單內（自訂輸入），用 input 顯示
+    const payInList=PAYS.includes(c.pay);
+    div.innerHTML=
+      '<button class="qi-rm" onclick="rmCart('+idx+')" title="移除">✕</button>'+
+      '<div class="qi-name">'+r[2]+'</div>'+
+      '<div class="qi-meta">'+
+        '<span class="tag">'+(FLAG[r[9]]||'')+' '+r[9]+'</span>'+
+        '<span class="tag">'+r[12]+'</span>'+
+        (r[4]?'<span class="tag">'+r[4]+'</span>':'')+
+        (r[6]?'<span class="tag">箱入 '+r[6]+'</span>':'')+
+        (r[18]?'<span class="tag" style="background:#FFF9E6;color:#856404">MOQ '+r[18]+'</span>':'')+(r[19]?'<span class="tag" style="background:#E8F5E9;color:#2E7D32">'+r[19]+'</span>':'')+
+        (r[7]?'<span class="tag">'+r[7]+' 箱/板</span>':'')+
+        (r[8]?'<span class="tag">BBD '+r[8]+'天</span>':'')+
+        '<span class="tag pay-tag">'+c.pay+'</span>'+
+      '</div>'+
+      '<div class="qi-row">'+
+        '<label>數量</label>'+
+        '<input type="number" class="iw" value="'+c.qty+'" min="1" placeholder="1" title="'+(r[6]>0?'每箱'+r[6]+'件':'')+'" onchange="updQ('+idx+',this.value)" oninput="updQ('+idx+',this.value)">'+
+        '<label>報價</label>'+
+        '<input type="number" class="iwp'+(isE?' err-inp':'')+'" value="'+(c.price||'')+'" step="0.01" placeholder="'+(twdFloor>0?twdFloor.toFixed(0):(mp>0?mp.toFixed(4):'請輸入'))+'" onchange="updP('+idx+',this.value)" oninput="updP('+idx+',this.value)">'+
+        '<span class="qi-cur" style="font-weight:600;color:'+(isTWD?'#185FA5':'#666')+'">'+(isTWD?'TWD':(r[10]||''))+'</span>'+
+        (isTWD&&r[20]>0?'<span class="qi-floor" style="color:#013121;font-weight:700">🔒 底限 NT$'+r[20].toFixed(0)+'</span>':(mp>0?'<span class="qi-floor">底限 '+mp.toFixed(4)+'</span>':'<span class="qi-floor" style="color:#bbb">成本待補</span>'))+
+      '</div>'+
+      '<div class="qi-row" style="margin-top:5px">'+
+        '<label>交易條件</label>'+
+        '<span style="background:#EEF1F8;padding:3px 10px;border-radius:5px;font-size:11px;font-weight:700;border:1px solid #dde2ec">'+c.inc+'</span>'+
+        (isTWD?'<span style="background:#E6F1FB;color:#185FA5;padding:3px 8px;border-radius:5px;font-size:10px;font-weight:600;margin-left:4px">TWD</span>':'<span style="background:#F5F5F5;color:#555;padding:3px 8px;border-radius:5px;font-size:10px;margin-left:4px">'+(r[10]||'')+'</span>')+
+        '<label>付款條件</label>'+
+        (payInList
+          ? '<select style="width:140px" onchange="updPay('+idx+',this.value)">'+payO+'</select>'
+          : '<input type="text" style="width:140px;text-align:left" value="'+c.pay+'" onchange="updPay('+idx+',this.value)" oninput="updPay('+idx+',this.value)">')+
+      '</div>'+
+      (isE?'<div class="qi-err">'+(twdFloor>0?'⚠ 不可低於台幣底限 NT$'+twdFloor.toFixed(0):'⚠ 不可低於底限 '+mp.toFixed(4)+' '+(r[10]||''))+'</div>':'');
+    ql.appendChild(div);
+  });
+  renTotal();
+}
+
+function renTotal(){
+  const keys=Object.keys(cart).map(Number);
+  const hasE=keys.some(idx=>{const r=D[idx],c=cart[idx],mp=r[15]||0;const twdF=isTWD&&r[20]>0?r[20]:0;return twdF>0?(c.price>0&&c.price<twdF):(!isTWD&&mp>0&&c.price>0&&c.price<mp);});
+  document.getElementById('pBtn').disabled=!keys.length||hasE;
+}
+
+function clrAll(){
+  if(!Object.keys(cart).length)return;
+  if(confirm('確定清除所有已選產品？')){cart={};renTable();renCart();}
+}
+
+function printQ(){
+  const keys=Object.keys(cart).map(Number);
+  const cl=document.getElementById('cl').value.trim();
+  if(!cl)return alert('請填寫客戶名稱');
+  const hasE=keys.some(idx=>{const r=D[idx],c=cart[idx],mp=r[15]||0;const twdF=isTWD&&r[20]>0?r[20]:0;return twdF>0?(c.price>0&&c.price<twdF):(!isTWD&&mp>0&&c.price>0&&c.price<mp);});
+  if(hasE)return alert('部分品項報價低於底限，請修正後再輸出。');
+  const cur=document.getElementById('qcur').value;
+  const days=parseInt(document.getElementById('qdays').value)||30;
+  const notes=document.getElementById('qnotes').value;
+  const today=new Date().toLocaleDateString('zh-TW');
+  const valid=new Date(Date.now()+days*86400000).toLocaleDateString('zh-TW');
+  const qNo='QT-'+new Date().getFullYear()+'-'+String(Math.floor(Math.random()*9000)+1000);
+  const rows=keys.map(idx=>{const r=D[idx],c=cart[idx],p=parseFloat(c.price)||0,q=parseInt(c.qty)||1;return{r,p,q,inc:c.inc,pay:c.pay,tot:+(p*q).toFixed(2)};});
+  const w=window.open('','_blank','width=1050,height=760');
+  w.document.write(
+'<!DOCTYPE html><html><head><meta charset="UTF-8"><title>報價單 '+qNo+'</title>'+
+'<style>body{font-family:Arial,sans-serif;font-size:12px;padding:28px 36px;color:#111}'+
+'h2{color:#013121;font-size:17px;margin-bottom:2px}.co{color:#555;font-size:11px;margin-bottom:16px}'+
+'.meta{display:grid;grid-template-columns:repeat(3,1fr);gap:6px 20px;margin-bottom:16px;padding:10px 14px;background:#F8F9FC;border-radius:6px;border:1px solid #e5e9f0}'+
+'.mf{font-size:11px}.mf span{color:#888;display:block;font-size:10px;margin-bottom:1px}'+
+'table{width:100%;border-collapse:collapse;font-size:11px;margin-top:4px}'+
+'th{background:#013121;color:#fff;padding:6px 8px;text-align:left;font-size:10px;white-space:nowrap}'+
+'td{padding:5px 8px;border-bottom:1px solid #eee;vertical-align:top}tr:nth-child(even) td{background:#f9fafc}'+
+'.n{text-align:right}'+
+'.notes{margin-top:12px;font-size:11px;color:#555;padding:8px 12px;background:#FFF9E6;border-radius:4px}'+
+'.foot{margin-top:24px;font-size:10px;color:#aaa;display:flex;justify-content:space-between;border-top:1px solid #eee;padding-top:8px}'+
+'@media print{body{padding:16px 22px}}</style></head><body>'+
+'<h2>Golden Jade Terre Co., Ltd.</h2><div class="co">高玉企業有限公司 — 報價單 Quotation</div>'+
+'<div class="meta">'+
+'<div class="mf"><span>報價單號</span>'+qNo+'</div>'+
+'<div class="mf"><span>客戶 / Customer</span><strong>'+cl+'</strong></div>'+
+'<div class="mf"><span>報價日期</span>'+today+'</div>'+
+'<div class="mf"><span>有效期至</span>'+valid+'</div>'+
+'<div class="mf"><span>幣別</span>'+cur+'</div>'+
+'<div class="mf"><span>付款條件</span>'+document.getElementById('qpay').value+'</div>'+
+'</div>'+
+'<table><thead><tr>'+
+'<th>#</th><th>中文品名</th><th>英文品名</th><th>規格</th>'+
+'<th>供應商</th><th>生產國</th><th>合作模式</th>'+
+'<th>交易條件</th><th>付款條件</th>'+
+'<th class="n">箱入數</th><th class="n">每板箱數</th>'+
+'<th class="n">數量</th><th class="n">單價</th><th class="n">小計</th>'+
+'</tr></thead><tbody>'+
+rows.map((x,i)=>
+'<tr><td>'+(i+1)+'</td>'+
+'<td><strong>'+x.r[2]+'</strong></td>'+
+'<td style="color:#555">'+(x.r[3]||'-')+'</td>'+
+'<td>'+(x.r[4]||'-')+'</td>'+
+'<td>'+x.r[12]+'</td>'+
+'<td>'+(x.r[9]||'-')+'</td>'+
+'<td>'+(x.r[13]||'-')+'</td>'+
+'<td><strong>'+x.r[11]+'</strong></td>'+
+'<td style="font-size:10px;font-weight:700;color:#013121">'+x.pay+'</td>'+
+'<td class="n">'+(x.r[6]||'-')+'</td>'+
+'<td class="n">'+(x.r[7]||'-')+'</td>'+
+'<td class="n">'+x.q.toLocaleString()+'</td>'+
+'<td class="n">'+(isTWD?'TWD':(x.r[10]||''))+' '+x.p.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})+'</td>'+
+'<td class="n"><strong>'+(isTWD?'TWD':(x.r[10]||''))+' '+x.tot.toLocaleString(undefined,{minimumFractionDigits:2})+'</strong></td>'+
+'</tr>').join('')+
+'</tbody></table>'+
+(notes?'<div class="notes">備註 Remarks：'+notes+'</div>':'')+
+'<div class="foot"><span>Golden Jade Terre Co., Ltd. ｜ 高玉企業有限公司</span><span>'+qNo+' ｜ '+today+'</span></div>'+
+'<script>window.onload=function(){window.print();}<\/script></body></html>');
+  w.document.close();
+}
+
+init();fil();
+</script>
+</body>
+</html>
