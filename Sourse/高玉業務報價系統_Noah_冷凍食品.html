@@ -1,0 +1,1823 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>高玉企業 — Noah 冷凍與非食品報價系統</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;font-size:12px;background:#F4F6FA;color:#1a1a2e;height:100vh;display:flex;flex-direction:column;overflow:hidden}
+.hdr{background:linear-gradient(135deg,#013121,#2A5240);color:#fff;padding:10px 18px;display:flex;align-items:center;gap:12px;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+.hdr-logo{font-size:17px;font-weight:700}.hdr-sub{font-size:10px;opacity:.7;margin-top:1px}
+.hdr-badge{margin-left:auto;background:rgba(255,255,255,.15);border-radius:6px;padding:4px 12px;text-align:center;font-size:11px}
+.hdr-badge strong{display:block;font-size:15px;font-weight:700}
+.lockbar{background:#FFF9E6;border-bottom:1px solid #F0D060;color:#7A5000;padding:5px 18px;font-size:11px;text-align:center;flex-shrink:0}
+.main{display:flex;flex:1;overflow:hidden}
+/* LEFT */
+.left{display:flex;flex-direction:column;width:60%;border-right:1px solid #dde2ec;background:#fff;overflow:hidden}
+.col-toggles{padding:7px 12px;background:#F0F4FA;border-bottom:1px solid #e2e8f0;display:flex;gap:6px;flex-wrap:wrap;align-items:center;flex-shrink:0}
+.tgl-lbl{font-size:10px;font-weight:700;color:#4a5568;margin-right:4px;white-space:nowrap}
+.tgl{display:inline-flex;align-items:center;gap:4px;cursor:pointer;font-size:11px;color:#4a5568;padding:2px 8px;border-radius:4px;border:1px solid #ccd4e0;background:#fff;user-select:none}
+.tgl:hover{background:#EEF1F8}.tgl.on{background:#E8EEFF;border-color:#013121;color:#013121;font-weight:700}
+.tgl input{width:13px;height:13px;cursor:pointer;accent-color:#013121}
+.filters{padding:8px 12px;border-bottom:1px solid #eee;display:flex;gap:7px;flex-wrap:wrap;align-items:flex-end;background:#F8F9FC;flex-shrink:0}
+.filters label{font-size:10px;color:#666;display:block;margin-bottom:2px}
+.filters input,.filters select{padding:4px 8px;border:1px solid #ccd4e0;border-radius:5px;font-size:11px;background:#fff;color:#222}
+.filters input{width:135px}
+.f-cnt{font-size:10px;color:#888;align-self:center;margin-left:auto}
+.prod-wrap{flex:1;overflow-y:auto}
+table{width:100%;border-collapse:collapse;font-size:11px}
+th{position:sticky;top:0;background:#EEF1F8;font-size:10px;font-weight:600;color:#4a5568;padding:5px 8px;text-align:left;border-bottom:2px solid #dde2ec;white-space:nowrap;z-index:2}
+td{padding:5px 8px;border-bottom:1px solid #f0f2f7;vertical-align:middle}
+tr.row:hover td{background:#EDF2FF;cursor:pointer}
+tr.row.sel td{background:#D6E8FF!important}
+.b{display:inline-block;padding:1px 6px;border-radius:99px;font-size:10px;font-weight:600}
+.bf{background:#E6F1FB;color:#1a56db}.bn{background:#f0f0f0;color:#555}
+.bpx{background:#EDE7F6;color:#5E35B1}.bml{background:#FFF0E6;color:#CC4400}
+.mp{color:#1a56db;font-weight:600}.mp-na{color:#bbb;font-size:10px}
+/* RIGHT */
+.right{display:flex;flex-direction:column;width:40%;background:#F8F9FC;overflow:hidden}
+.qt-hdr{padding:10px 14px;border-bottom:1px solid #dde2ec;background:#fff;flex-shrink:0}
+.qt-hdr h3{font-size:13px;font-weight:700;color:#013121;margin-bottom:8px}
+/* 客戶區 */
+.cust-bar{background:#EEF4FF;border-radius:7px;padding:8px 10px;margin-bottom:8px}
+.cust-row{display:flex;align-items:center;gap:8px}
+.cust-row label{font-size:11px;font-weight:700;color:#013121;white-space:nowrap}
+.cust-row select{flex:1;padding:5px 8px;border:1.5px solid #013121;border-radius:5px;font-size:12px;background:#fff;color:#1a1a2e;font-weight:600}
+/* 其他客戶輸入區 */
+.other-fields{margin-top:8px;padding-top:8px;border-top:1px dashed #b8ccee;display:none;gap:8px;flex-direction:column}
+.other-fields.show{display:flex}
+.other-fields .so-row{display:flex;gap:8px;align-items:center}.other-fields .row{display:flex;gap:8px;align-items:center}
+.other-fields label{font-size:10px;color:#013121;font-weight:700;white-space:nowrap;width:72px}
+.other-fields input{flex:1;padding:5px 8px;border:1.5px solid #013121;border-radius:5px;font-size:12px;background:#fff}
+.other-fields input:focus{outline:2px solid #013121;outline-offset:1px}
+.other-fields .hint{font-size:10px;color:#888;margin-top:2px}
+/* 美廉社雙選 */
+.pay-choice{background:#fff;border:1.5px solid #013121;border-radius:8px;padding:8px 10px;margin-bottom:8px;display:none}
+.pay-choice label{font-size:11px;font-weight:600;color:#013121;display:block;margin-bottom:6px}
+.pay-choice .opts{display:flex;gap:8px}
+.pay-choice .opt{padding:5px 16px;border:1.5px solid #ccd4e0;border-radius:99px;cursor:pointer;font-size:12px;font-weight:600;background:#fff;transition:all .15s}
+.pay-choice .opt:hover{border-color:#013121;background:#EEF4FF}
+.pay-choice .opt.active{border-color:#013121;background:#013121;color:#fff}
+/* Meta */
+.qt-meta{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.qt-meta .f label{font-size:10px;color:#666;display:block;margin-bottom:2px}
+.qt-meta .f input,.qt-meta .f select{width:100%;padding:4px 8px;border:1px solid #ccd4e0;border-radius:5px;font-size:11px;background:#fff}
+.span2{grid-column:1/-1}
+/* Body */
+.qt-body{flex:1;overflow-y:auto;padding:8px 12px}
+.qt-bh{font-size:10px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+.qi{background:#fff;border:1px solid #dde2ec;border-radius:8px;padding:9px 11px;margin-bottom:7px;position:relative;animation:fi .15s ease}
+.qi.err{border-color:#FC8181;background:#FFF5F5}
+.qi-rm{position:absolute;top:7px;right:9px;background:none;border:none;color:#ccc;cursor:pointer;font-size:15px;line-height:1;padding:2px 4px}
+.qi-rm:hover{color:#E53E3E}
+.qi-name{font-weight:700;font-size:12px;margin-bottom:2px;padding-right:20px}
+.qi-meta{font-size:10px;color:#888;margin-bottom:7px;line-height:1.8}
+.tag{display:inline-block;background:#EEF1F8;border-radius:3px;padding:0 5px;margin-right:3px;color:#555;font-weight:600}
+.tag.pay-tag{background:#E8EEFF;color:#013121;font-weight:700}
+.qi-row{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:4px}
+.qi-row label{font-size:10px;color:#666;white-space:nowrap}
+.qi-row input{padding:4px 7px;border:1px solid #ccd4e0;border-radius:5px;font-size:12px;text-align:right}
+.qi-row select{padding:4px 7px;border:1px solid #ccd4e0;border-radius:5px;font-size:11px;background:#fff}
+.iw{width:75px}.iwp{width:100px}
+.err-inp{border-color:#FC8181!important;background:#FFF5F5!important}
+.qi-cur{font-size:11px;color:#888}
+.qi-floor{font-size:10px;color:#718096;margin-left:auto;white-space:nowrap}
+.qi-err{font-size:10px;color:#E53E3E;margin-top:3px}
+/* Footer */
+.qt-foot{padding:10px 14px;border-top:1px solid #dde2ec;background:#fff;flex-shrink:0}
+.total-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.total-lbl{font-size:11px;color:#666}.total-val{font-size:17px;font-weight:700;color:#013121}
+.btn-row{display:flex;gap:8px}
+.btn{padding:8px 14px;border:none;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;transition:all .15s}
+.btn-p{background:#013121;color:#fff;flex:1}.btn-p:hover{background:#2A5240}.btn-p:disabled{background:#a0aec0;cursor:not-allowed}
+.btn-o{background:#fff;color:#013121;border:1.5px solid #013121}.btn-o:hover{background:#EEF4FF}
+.empty{text-align:center;padding:36px 20px;color:#bbb;font-size:12px}
+@keyframes fi{from{opacity:0;transform:translateY(-3px)}to{opacity:1;transform:none}}
+@media print{.left,.hdr,.lockbar{display:none!important}.right{width:100%!important;background:#fff!important;height:auto!important}.btn-row,.qi-rm,.cust-bar,.pay-choice{display:none!important}}
+
+/* ── 訂單模組 ── */
+.tab-bar{display:flex;gap:0;margin-bottom:0;border-bottom:2px solid #013121}
+.tab-btn{padding:7px 20px;font-size:12px;font-weight:600;cursor:pointer;border-radius:6px 6px 0 0;border:none;background:#e8e8e8;color:#666;transition:all .2s}
+.tab-btn.active{background:#013121;color:#C9A84C}
+.tab-panel{display:none}.tab-panel.active{display:block}
+.ord-section{background:#fff;border-radius:0 0 8px 8px;padding:12px;border:1px solid #dde}
+.ord-row{display:flex;gap:8px;margin-bottom:7px;align-items:flex-start}
+.ord-row label{font-size:11px;color:#555;white-space:nowrap;width:72px;flex-shrink:0;padding-top:5px}
+.ord-row input,.ord-row textarea,.ord-row select{flex:1;padding:5px 8px;border:1px solid #ccc;border-radius:5px;font-size:12px;font-family:inherit}
+.ord-row textarea{resize:vertical;min-height:48px}
+.ord-table{width:100%;border-collapse:collapse;font-size:11px;margin:8px 0}
+.ord-table th{background:#013121;color:#C9A84C;padding:5px 7px;text-align:left;font-weight:600}
+.ord-table td{padding:5px 7px;border-bottom:1px solid #eee;vertical-align:middle}
+.ord-pi{width:78px;padding:3px 5px;border:1px solid #ccc;border-radius:4px;font-size:11px;text-align:right}
+.ord-pi.warn{border-color:#e67e00!important;background:#fff8f0}
+.ord-qty{width:50px;padding:3px 5px;border:1px solid #ccc;border-radius:4px;font-size:11px;text-align:right}
+.ord-warn{font-size:9px;color:#e67e00}
+.ord-total{background:#f0f4f0;border-radius:6px;padding:8px 12px;margin:8px 0;font-size:12px;line-height:1.8}
+.ord-total b{color:#013121}
+.ord-btn-bar{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.ord-btn{padding:7px 14px;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer}
+.ord-btn.primary{background:#013121;color:#C9A84C}
+.ord-btn.sec{background:#e8e8e8;color:#333}
+.ord-hint{font-size:10px;color:#999;margin:4px 0}
+.ord-empty{text-align:center;color:#aaa;padding:24px;font-size:12px}
+.ord-div{font-size:11px;font-weight:700;color:#013121;margin:10px 0 5px;border-bottom:1px solid #dde;padding-bottom:3px}
+
+/* ── 工作流程模組 ── */
+.wf-modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:10000;
+  display:flex;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto}
+.wf-modal{background:#f4f6fa;border-radius:12px;width:960px;max-width:98%;padding:24px;
+  box-shadow:0 12px 48px rgba(0,0,0,.3)}
+.wf-modal-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.wf-modal-title{font-size:16px;font-weight:700;color:#013121}
+.wf-close{background:none;border:none;font-size:20px;cursor:pointer;color:#666;padding:4px 8px}
+.wf-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px}
+.wf-card{background:#fff;border-radius:10px;padding:16px;border-top:4px solid;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.wf-card.purch{border-color:#2ecc71}
+.wf-card.finance{border-color:#3498db}
+.wf-card.supply{border-color:#e67e22}
+.wf-card-hdr{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.wf-card-icon{font-size:22px}
+.wf-card-title{font-weight:700;font-size:13px;color:#1a1a2e}
+.wf-card-sub{font-size:10px;color:#888;margin-top:1px}
+.wf-order-info{background:#f8f9fb;border-radius:6px;padding:8px 10px;font-size:10px;
+  color:#555;margin-bottom:12px;line-height:1.8;border:1px solid #eee}
+.wf-task{display:flex;align-items:flex-start;gap:8px;padding:5px 0;
+  border-bottom:1px solid #f0f0f0;font-size:11px}
+.wf-task:last-child{border-bottom:none}
+.wf-task input[type=checkbox]{margin-top:2px;flex-shrink:0;accent-color:#013121}
+.wf-task label{cursor:pointer;line-height:1.4;color:#333}
+.wf-task label b{display:block;color:#1a1a2e;font-size:11px}
+.wf-task label span{color:#888;font-size:10px}
+.wf-task.urgent label b{color:#c00}
+.wf-print-bar{display:flex;gap:10px;justify-content:center;margin-top:16px;flex-wrap:wrap}
+.wf-print-btn{padding:9px 18px;border:none;border-radius:7px;font-size:12px;
+  font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px}
+.wf-print-btn.purch{background:#2ecc71;color:#fff}
+.wf-print-btn.finance{background:#3498db;color:#fff}
+.wf-print-btn.supply{background:#e67e22;color:#fff}
+.wf-print-btn.all{background:#013121;color:#C9A84C}
+@media(max-width:700px){.wf-grid{grid-template-columns:1fr}}
+
+/* ── 簡潔訂單 ── */
+.so-wrap{padding:10px}
+.so-meta{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px}
+.so-field{display:flex;flex-direction:column;gap:3px}
+.so-field label{font-size:10px;color:#666;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.so-field input{padding:6px 9px;border:1px solid #ddd;border-radius:6px;font-size:12px;font-family:inherit}
+.so-field input:focus{outline:none;border-color:#013121}
+.so-table{width:100%;border-collapse:collapse;font-size:11px;margin:8px 0}
+.so-table th{background:#013121;color:#C9A84C;padding:7px 8px;text-align:left;font-weight:600;white-space:nowrap}
+.so-table td{padding:6px 8px;border-bottom:1px solid #f0f0f0;vertical-align:middle}
+.so-table tr:hover td{background:#fafafa}
+.so-table .so-pi{width:82px;padding:4px 6px;border:1px solid #ccc;border-radius:4px;font-size:11px;text-align:right;font-family:monospace}
+.so-table .so-pi.warn{border-color:#e67e00;background:#fff8f0}
+.so-table .so-pi.err{border-color:#c00;background:#fff0f0}
+.so-table .so-qty{width:52px;padding:4px 6px;border:1px solid #ccc;border-radius:4px;font-size:11px;text-align:right}
+.so-foot{display:flex;align-items:center;justify-content:space-between;margin-top:10px;gap:8px;flex-wrap:wrap}
+.so-total{font-size:13px;font-weight:700;color:#013121;background:#f0f4f0;padding:8px 14px;border-radius:6px}
+.so-total span{color:#888;font-weight:400;font-size:11px;margin-left:6px}
+.so-btns{display:flex;gap:8px}
+.so-btn{padding:8px 16px;border:none;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer}
+.so-btn.print{background:#013121;color:#C9A84C}
+.so-btn.export{background:#8B5E3C;color:#fff}
+.so-empty{text-align:center;color:#bbb;padding:32px;font-size:12px}
+.so-warn-row{font-size:9px;margin-top:2px}
+.so-warn-row.floor{color:#e67e00}
+.so-warn-row.auth{color:#c00;font-weight:600}
+
+/* ── 主功能選擇器 ── */
+.mode-selector{display:flex;gap:12px;padding:12px 16px;background:#f4f6fa;border-bottom:2px solid #e0e4ec}
+.mode-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:6px;padding:14px 10px;border:2px solid #dde;border-radius:12px;background:#fff;
+  cursor:pointer;transition:all .2s;color:#555;font-family:inherit}
+.mode-btn .mode-icon{font-size:28px;line-height:1}
+.mode-btn .mode-title{font-size:14px;font-weight:700;color:#1a1a2e}
+.mode-btn .mode-sub{font-size:10px;color:#999;text-align:center;line-height:1.4}
+.mode-btn:hover{border-color:#013121;background:#f0f8f4}
+.mode-btn.active{border-color:#013121;background:#013121;color:#fff}
+.mode-btn.active .mode-title{color:#C9A84C}
+.mode-btn.active .mode-sub{color:rgba(201,168,76,.8)}
+.tab-bar{display:none!important}  /* 隱藏原有小 tab */
+</style>
+</head>
+<body onload="init();fil();renderOrderAgg();">
+<div class="hdr">
+  <div style="display:flex;align-items:center"><img src="data:image/png;base64,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" style="height:52px;width:52px;border-radius:8px;margin-right:12px;flex-shrink:0" alt="Golden Jade Terre"><div><div class="hdr-logo">Golden Jade Terre 高玉企業</div><div class="hdr-sub">Noah 冷凍與非食品報價系統</div><div style="font-size:10px;color:#C9A84C;opacity:0.8;margin-top:2px">最後更新：2026-05-19 17:18 ｜ Noah 冷凍與非食品 ｜ 共 75 筆</div></div></div>
+  <div class="hdr-badge"><strong id="pT">—</strong><span> 筆產品</span></div>
+</div>
+<div class="lockbar">🔒 本系統不含成本資料。低於最低報價底限時系統會警告並鎖定送出。</div>
+<div class="main">
+  <!-- LEFT -->
+  <div class="left">
+    <div class="col-toggles">
+      <span class="tgl-lbl">顯示欄位：</span>
+      <label class="tgl on" id="t-ean"><input type="checkbox" checked onchange="togCol('ean',this.checked)"> EAN條碼</label>
+      <label class="tgl on" id="t-cq"><input type="checkbox" checked onchange="togCol('cq',this.checked)"> 箱入數</label>
+      <label class="tgl on" id="t-cp"><input type="checkbox" checked onchange="togCol('cp',this.checked)"> 每板箱數</label>
+      <label class="tgl" id="t-bbd"><input type="checkbox" onchange="togCol('bbd',this.checked)"> BBD(天)</label>
+      <label class="tgl on" id="t-inc"><input type="checkbox" checked onchange="togCol('inc',this.checked)"> 交易條件</label>
+      <label class="tgl on" id="t-pay"><input type="checkbox" checked onchange="togCol('pay',this.checked)"> 付款條件</label>
+      <label class="tgl" id="t-stat"><input type="checkbox" onchange="togCol('stat',this.checked)"> 狀態</label>
+    </div>
+    <div class="filters">
+      <div><label>搜尋</label><input type="text" id="fq" placeholder="品名/供應商/EAN..." oninput="fil()"></div>
+      <div><label>型態</label><select id="ftype" onchange="fil()"><option value="">全部</option><option>常溫</option><option>冷凍</option></select></div>
+      <div><label>生產國</label><select id="fctry" onchange="fil()"><option value="">全部</option></select></div>
+      <div><label>供應商</label><select id="fsup" onchange="fil()"><option value="">全部</option></select></div>
+      <div><label>狀態</label><select id="fst" onchange="fil()"><option value="">全部</option><option>已進口</option><option>郵件新增</option><option>PX Mart提案</option></select></div>
+      <div><label>適用通路</label><select id="fch" onchange="fil()"><option value="">全部</option><option>全通路</option><option>PX Mart</option><option>PX Mart / 全通路</option><option>美廉社 / 全通路</option></select></div>
+      <div><label>產品類別</label><select id="fcat" onchange="fil()"><option value="">全部</option><option>乳製品</option><option>其他食品</option><option>冰淇淋</option><option>冷凍Pizza</option><option>冷凍烘焙</option><option>冷凍蔬果</option><option>冷凍薯類/點心</option><option>即飲茶</option><option>啤酒</option><option>堅果/乾果</option><option>巧克力</option><option>松露製品</option><option>果汁</option><option>果醬</option><option>植物奶</option><option>植物油</option><option>椰子水</option><option>橄欖油</option><option>機能飲料</option><option>氣泡飲料</option><option>沙拉醬</option><option>泡麵</option><option>洋芋片</option><option>海苔</option><option>番茄製品</option><option>節慶糕點</option><option>義大利麵/燉飯</option><option>花草茶</option><option>葡萄酒</option><option>酪梨油</option><option>醃漬品</option><option>醋</option><option>零食</option><option>非食品</option><option>餅乾</option><option>香料</option><option>魚類零食</option></select></div>
+      <span class="f-cnt" id="fcnt"></span>
+    </div>
+    <div class="prod-wrap"><table><thead><tr>
+      <th>型態</th><th>中文品名</th><th>規格</th><th>生產國</th><th>供應商</th>
+      <th id="h-ean">EAN條碼</th>
+      <th id="h-cq" style="text-align:right">箱入數</th>
+      <th id="h-cp" style="text-align:right">每板箱數</th>
+      <th id="h-bbd" style="text-align:right;display:none">BBD(天)</th>
+      <th id="h-inc">交易條件</th>
+      <th id="h-pay">付款條件</th>
+      <th style="text-align:right">最低報價</th>
+      <th>幣別</th>
+      <th id="h-stat" style="display:none">狀態</th>
+    </tr></thead><tbody id="pb"></tbody></table></div>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="right">
+    <div class="mode-selector">
+        <button class="mode-btn active" id="modeQ" onclick="switchTab('Q')">
+          <span class="mode-icon">📋</span>
+          <span class="mode-title">產品報價</span>
+          <span class="mode-sub">瀏覽產品、設定報價<br>列印報價單</span>
+        </button>
+        <button class="mode-btn" id="modeO" onclick="switchTab('O')">
+          <span class="mode-icon">📦</span>
+          <span class="mode-title">下訂單</span>
+          <span class="mode-sub">輸入成交價、填寫訂單<br>列印 & 匯出彙整表</span>
+        </button>
+      </div>
+      <div class="qt-hdr">
+      <div class="tab-bar">
+        <button class="tab-btn active" id="tabQ" onclick="switchTab('Q')">📋 報價單</button>
+        <button class="tab-btn" id="tabO" onclick="switchTab('O')">📦 確認訂單</button>
+      </div>
+      <div class="tab-panel active" id="panelQ">
+
+      <!-- 客戶選擇區 -->
+      <div class="cust-bar">
+        <div class="cust-row">
+          <label>🏪 客戶</label>
+          <select id="custSel" onchange="selCust(this.value)">
+            <option value="">— 選擇客戶 —</option>
+            <option value="星巴克">⭐ 星巴克</option>
+            <option value="家福 (Carrefour)">🛒 家福 (Carrefour)</option>
+            <option value="台灣生活良好">🌿 台灣生活良好</option>
+            <option value="美廉社">🏪 美廉社</option>
+            <option value="東森">📺 東森</option>
+            <option value="桂冠">🍃 桂冠</option>
+            <option value="__other__">✏️ 其他（手動輸入）</option>
+          </select>
+        </div>
+
+        <!-- 其他：手動輸入欄 -->
+        <div class="other-fields" id="otherFields">
+          <div class="row">
+            <label>客戶名稱</label>
+            <input type="text" id="otherName" placeholder="輸入客戶 / 採購方名稱" oninput="syncOtherName()">
+          </div>
+          <div class="row">
+            <label>付款條件</label>
+            <input type="text" id="otherPay" placeholder="例：月結45天、BL30天、T/T 60 days…" oninput="syncOtherPay()">
+          </div>
+          <div class="hint">輸入後會自動同步至下方欄位及所有品項</div>
+        </div>
+      </div>
+
+      <!-- TWD 模式提示 -->
+      <div id="curModeBar" style="display:none;margin-top:6px;background:#E6F1FB;border:1px solid #2C4770;border-radius:6px;padding:6px 10px;font-size:11px;color:#185FA5">
+        <b>🇹🇼 台幣報價模式</b>：此客戶以 <b>TWD</b> 報價。
+        各品項交易條件與成本一致（唯讀）。Europastry/Feast 已計算台幣底限（🔒），其他品項底限為外幣參考，請自行換算。
+      </div>
+
+      <!-- 美廉社雙選 -->
+      <div class="pay-choice" id="payChoice">
+        <label>美廉社 — 選擇付款條件：</label>
+        <div class="opts">
+          <div class="opt active" onclick="pickPay('BL 60天',this)">BL 60天</div>
+          <div class="opt" onclick="pickPay('BL 45天',this)">BL 45天</div>
+        </div>
+      </div>
+
+      <div class="qt-meta">
+        <div class="f span2">
+          <label>客戶名稱 *</label>
+          <input type="text" id="cl" placeholder="採購方 / 客戶名稱">
+        </div>
+        <div class="f">
+          <label>報價幣別</label>
+          <select id="qcur" onchange="renTotal()">
+            <option>USD</option><option>EUR</option><option>Euro</option><option>TWD</option>
+          </select>
+        </div>
+        <div class="f">
+          <label>有效天數</label>
+          <input type="number" id="qdays" value="30" min="1">
+        </div>
+        <div class="f span2">
+          <label>付款條件（預設，各品項可個別調整）</label>
+          <input type="text" id="qpay" value="T/T 30 days">
+        </div>
+        <div class="f span2">
+          <label>備註</label>
+          <input type="text" id="qnotes" placeholder="選填">
+        </div>
+      </div>
+    </div>
+
+    <div class="qt-body">
+      <div class="qt-bh">已選產品 <span id="qcnt" style="color:#013121">0</span> 項</div>
+      <div id="ql"><div class="empty">← 點擊左側產品列加入報價單</div></div>
+    </div>
+
+    <div class="qt-foot">
+      <div class="total-row">
+        <span class="total-lbl">合計（報價幣別）</span>
+        <span class="total-val" id="qt">—</span>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-o" onclick="clrAll()">清除</button>
+        <button class="btn btn-p" id="pBtn" onclick="printQ()" disabled>📄 列印 / PDF</button>
+      </div>
+    </div>
+  
+      </div><!-- /panelQ -->
+
+      <!-- ─── 訂單模組 ─── -->
+      <div class="tab-panel" id="panelO">
+        <div class="so-wrap">
+
+          <!-- 訂單基本資訊（4欄）-->
+          <div class="so-meta" style="grid-template-columns:1fr 1.2fr 1fr 1fr">
+            <div class="so-field">
+              <label>🏪 客戶名稱</label>
+              <input type="text" id="ordCust" placeholder="採購方名稱">
+            </div>
+            <div class="so-field">
+              <label style="color:#c00;font-size:11px;letter-spacing:.5px">
+                📋 客戶訂單編號 <span style="background:#c00;color:#fff;border-radius:3px;padding:1px 4px;font-size:9px;margin-left:3px">必填</span>
+              </label>
+              <input type="text" id="ordCustPO"
+                placeholder="客戶 PO / 採購單號"
+                style="border-color:#e88;font-weight:600"
+                oninput="this.style.borderColor=this.value?'#2ecc71':'#e88'">
+            </div>
+            <div class="so-field">
+              <label>🔖 高玉訂單號碼</label>
+              <input type="text" id="ordPO" placeholder="高玉內部 PO（選填）">
+            </div>
+            <div class="so-field">
+              <label>🚢 交　　期</label>
+              <input type="date" id="ordDate">
+            </div>
+          </div>
+
+          <!-- 訂單明細表 -->
+          <table class="so-table">
+            <thead>
+              <tr>
+                <th>EAN 條碼</th>
+                <th>中文品名</th>
+                <th>英文品名</th>
+                <th style="text-align:right">單價</th>
+                <th>幣別</th>
+                <th style="text-align:right">數量(箱)</th>
+                <th style="text-align:right">小計</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="soBody">
+              <tr><td colspan="8" class="so-empty">請先在「報價單」加入產品，再切換此分頁</td></tr>
+            </tbody>
+          </table>
+
+          <div class="so-confirm" style="border:1px solid #d8dee4;background:#f8faf9;border-radius:8px;padding:10px 12px;margin-top:10px">
+            <div style="display:grid;grid-template-columns:minmax(160px,.8fr) minmax(260px,1.4fr);gap:10px;align-items:end">
+              <div class="so-field">
+                <label>業務姓名 *</label>
+                <input type="text" id="ordSales" placeholder="例：Noah">
+              </div>
+              <label style="display:flex;gap:8px;align-items:flex-start;font-size:12px;line-height:1.45;color:#334155">
+                <input type="checkbox" id="ordConfirm" style="width:16px;height:16px;margin-top:2px">
+                <span>我已確認客戶名稱、客戶訂單編號、品項、成交價、數量、付款條件與交期正確。此訂單檔只交給 Tina/Codex 匯入私人的訂單彙整表。</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- 總金額 + 按鈕 -->
+          <div class="so-foot">
+            <div class="so-total" id="soTotal">總金額：<span>—</span></div>
+            <div class="so-btns">
+              <button class="so-btn print"  onclick="printSimpleOrder()">📄 列印訂單</button>
+              <button class="so-btn export" onclick="exportForSummary()">✅ 確認並產生上傳檔</button>
+            </div>
+          </div>
+
+          <div class="so-summary" style="border:1px solid #d8dee4;background:#fff;border-radius:8px;padding:12px;margin-top:12px">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:8px">
+              <div>
+                <div style="font-weight:700;color:#013121;font-size:13px">客戶訂單彙整</div>
+                <div style="font-size:11px;color:#64748b;margin-top:2px">只彙整本機訂單上傳檔，不讀取 Tina 私人訂單彙整表</div>
+              </div>
+              <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                <select id="orderAggCustomer" onchange="renderOrderAgg()" style="height:30px;border:1px solid #cbd5e1;border-radius:6px;padding:0 8px;min-width:180px">
+                  <option value="">全部客戶</option>
+                </select>
+                <button class="so-btn print" type="button" onclick="renderOrderAgg()">重新整理</button>
+                <label class="so-btn print" style="display:inline-flex;align-items:center;cursor:pointer">
+                  匯入訂單檔
+                  <input type="file" accept=".json,application/json" multiple onchange="importOrderAggFiles(this.files); this.value=''" style="display:none">
+                </label>
+                <button class="so-btn export" type="button" onclick="exportOrderAggCSV()">匯出客戶彙整 CSV</button>
+                <button class="so-btn print" type="button" onclick="clearOrderAgg()">清除本機紀錄</button>
+              </div>
+            </div>
+            <div id="orderAggStats" style="font-size:12px;color:#334155;margin:6px 0">尚無訂單紀錄</div>
+            <table class="so-table">
+              <thead>
+                <tr>
+                  <th>訂單日</th><th>客戶</th><th>客戶PO</th><th>業務</th><th>品項數</th><th>金額彙總</th><th>狀態</th>
+                </tr>
+              </thead>
+              <tbody id="orderAggBody">
+                <tr><td colspan="7" class="so-empty">尚無訂單紀錄。請先確認並產生上傳檔，或匯入訂單 JSON。</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+      </div><!-- /panelO -->
+</div>
+</div>
+
+<script>
+const D=[["SP300001","常溫","Daily Yes日日好選超細纖維拋棄式抹布","Daily Yes Microfiber cloth23*23cm*20count","23cm*23cm*20sheet","",36,0,720,"中國","RMB","CIF","上海根因","收佣金","TDS清帳",9.0,"已進口","全通路","","非食品",0,8.5869,0.0],["SP200002","冷凍","起司棒","67980Cheese Stick (40u)","82g","67980",40,170,360,"西班牙","Euro","CIF","Europastry","買進","BL 60天",0.7802,"已進口","全通路","1 FTL 20'","冷凍烘焙",42.0,0.0,37.97],["SP200002","冷凍","巧克力雙色可頌","60165 Choco Bicol. Croissant (36u)","90g","60165",36,120,360,"西班牙","Euro","CIF","Europastry","買進","BL 60天",0.5396,"已進口","全通路","1 FTL 20'","冷凍烘焙",32.0,0.0,27.08],["SP200002","冷凍","蘋果卡士達蛋撻","65205 Apple Portuguese Egg Tart 蘋果葡式蛋塔","72g","",44,170,360,"西班牙","Euro","CIF","Europastry","買進","BL 60天",0.4644,"已進口","全通路","1 FTL 20'","冷凍烘焙",26.0,0.0,22.98],["SP200002","冷凍","榛果巧克力蛋撻","65182 Pastel Nata Cioc 葡式蛋塔巧克力口味","62g","65182",36,170,270,"西班牙","Euro","CIF","Europastry","買進","BL 60天",0.4585,"已進口","全通路","1 FTL 20'","冷凍烘焙",26.0,0.0,23.62],["SP200002","冷凍","起司方塊派","Cuadrado Caprese (48u)","136g","67048",48,90,360,"西班牙","Euro","CIF","Europastry","買進","BL 60天",0.6561,"已進口","全通路","1 FTL 20'","冷凍烘焙",39.0,0.0,34.7],["SP200002","冷凍","阿爾伯特起司蛋糕","64142 AA Cheese Cake (8U)","330g","64142",8,90,360,"西班牙","Euro","CIF","Europastry","買進","BL 60天",7.363,"已進口","全通路","1 FTL 20'","冷凍烘焙",399.0,0.0,384.48],["SP200002","冷凍","天然奶油脆皮酥","Caprice Paille (55u)","90","22690",55,140,540,"西班牙","Euro","CIF","Europastry","買進","BL 60天",0.6677,"已進口","全通路","1 FTL 20'","冷凍烘焙",38.0,0.0,31.79],["SP200002","冷凍","天然奶油蝴蝶酥","Butter Palmier (90u)","90","85310",90,90,540,"西班牙","Euro","CIF","Europastry","買進","BL 60天",0.6582,"已進口","全通路","1 FTL 20'","冷凍烘焙",38.0,0.0,30.81],["SP200002","冷凍","覆盆子雙色可頌","Raspberry bicol.Croissant 36u","90","60155",36,120,360,"西班牙","Euro","CIF","Europastry","買進","BL 60天",0.7009,"已進口","全通路","1 FTL 20'","冷凍烘焙",42.0,0.0,35.97],["SP200002","冷凍","天然穀物脆皮可頌","Caprice Multicereal Croissant","80","22180",55,90,360,"西班牙","Euro","CIF","Europastry","買進","BL 60天",0.5059,"已進口","全通路","1 FTL 20'","冷凍烘焙",32.0,0.0,25.84],["SP200002","冷凍","天然奶油脆皮蘋果口袋酥","Apple Pocket (70u)","110","65450",70,90,540,"西班牙","Euro","CIF","Europastry","買進","BL 60天",0.8239,"已進口","全通路","1 FTL 20'","冷凍烘焙",46.0,0.0,40.21],["SP200002","冷凍","榛果可可派","Cocoa Hazelnut Panier (60u)","100","61946",60,120,360,"西班牙","Euro","CIF","Europastry","買進","BL 60天",0.7075,"已進口","全通路","1 FTL 20'","冷凍烘焙",40.0,0.0,34.05],["SP200002","冷凍","地中海椒鹽扭結酥","Mediterranian Bretzel (32u)","147","40298",32,120,360,"西班牙","Euro","CIF","Europastry","買進","BL 60天",1.0247,"已進口","全通路","1 FTL 20'","冷凍烘焙",60.0,0.0,49.99],["SP200002","冷凍","拿玻里番茄起司派","Napoli Envoltini (55u)","135","21680",55,120,360,"西班牙","Euro","CIF","Europastry","買進","BL 60天",0.6567,"已進口","全通路","1 FTL 20'","冷凍烘焙",38.0,0.0,31.73],["SP200002","冷凍","奶油起司滿餡卷","Cheese Snecken (36u)","111","67903",36,80,360,"西班牙","Euro","CIF","Europastry","買進","BL 60天",0.8402,"已進口","全通路","1 FTL 20'","冷凍烘焙",52.0,0.0,44.51],["SP200002","冷凍","肉桂捲","Cinnamon Roll PFMT (30u)","110","62457",30,72,360,"西班牙","Euro","CIF","Europastry","買進","BL 60天",0.8311,"已進口","全通路","1 FTL 20'","冷凍烘焙",55.0,0.0,46.14],["SP200002","冷凍","起司蝴蝶酥","Cheese Bretzel","145","40297",32,120,360,"西班牙","Euro","CIF","Europastry","買進","BL 60天",0.9218,"已進口","全通路","1 FTL 20'","冷凍烘焙",54.0,0.0,47.59],["SP200002","冷凍","Cristallino Ciabatta (28px2u)","Cristallino Ciabatta (28px2u)","190","67322",28,40,450,"西班牙","Euro","CIF","Europastry","買進","BL 60天",0.9364,"已進口","全通路","1 FTL 20'","冷凍烘焙",51.26,0.0,45.75],["SP200002","冷凍","Cristallino Ciabatta Kornsptiz (28px2u)","Cristallino Ciabatta Kornsptiz (28px2u)","196","60036",28,40,450,"西班牙","Euro","CIF","Europastry","買進","BL 60天",1.1229,"已進口","全通路","1 FTL 20'","冷凍烘焙",60.05,0.0,53.59],["SP200002","冷凍","Cristallino Ciabatta Gouda (28px2u)","Cristallino Ciabatta Gouda (28px2u)","190","65405",28,50,270,"西班牙","Euro","CIF","Europastry","買進","BL 60天",1.7883,"已進口","全通路","1 FTL 20'","冷凍烘焙",91.37,0.0,81.54],["SP200002","冷凍","Cristallino burger (14px4u)","Cristallino burger (14px4u)","300","89838",14,40,360,"西班牙","Euro","CIF","Europastry","買進","BL 60天",1.669,"已進口","全通路","1 FTL 20'","冷凍烘焙",92.03,0.0,82.14],["SP200002","冷凍","Cristallino burger (10px6u)","Cristallino burger (10px6u)","426","69865",10,40,360,"西班牙","Euro","CIF","Europastry","買進","BL 60天",2.407,"已進口","全通路","1 FTL 20'","冷凍烘焙",128.89,0.0,115.04],["SP200002","冷凍","Vegan Caprese Yummie (24u)","Vegan Caprese Yummie (24u)","90","67515",24,180,360,"西班牙","Euro","CIF","Europastry","買進","BL 60天",1.4134,"已進口","全通路","1 FTL 20'","冷凍烘焙",80.0,0.0,66.69],["SP200002","冷凍","Vegan Burger Yummie (24u)","Vegan Burger Yummie (24u)","85","65510",24,180,360,"西班牙","Euro","CIF","Europastry","買進","BL 60天",1.5155,"已進口","全通路","1 FTL 20'","冷凍烘焙",85.0,0.0,71.46],["SP200002","冷凍","解凍即食吉拿棒","Churros (177u)","17","61391",177,135,360,"西班牙","Euro","CIF","Europastry","買進","BL 60天",0.1609,"已進口","全通路","1 FTL 20'","冷凍烘焙",9.9,0.0,7.62],["SP200002","冷凍","Caprice Hazelnut Croissant 48u","Caprice Hazelnut Croissant 48u","90","61105",48,90,360,"西班牙","Euro","CIF","Europastry","買進","BL 60天",0.5961,"已進口","全通路","1 FTL 20'","冷凍烘焙",38.0,0.0,30.74],["SP200002","冷凍","Custard Long Dots (45u)SG","Custard Long Dots (45u)SG","55","20260",45,112,360,"西班牙","Euro","CIF","Europastry","買進","BL 60天",0.4391,"已進口","全通路","1 FTL 20'","冷凍烘焙",29.0,0.0,23.25],["SP200002","冷凍","Custard Mini BallDots (40u)SG","Custard Mini BallDots (40u)SG","40","42880",40,150,360,"西班牙","Euro","CIF","Europastry","買進","BL 60天",0.3204,"已進口","全通路","1 FTL 20'","冷凍烘焙",22.0,0.0,17.5],["SP200001","冷凍","Feast吉拿棒切薯條","Feast Churros Cut Potatoes","1000g","8697343111689",10,56,720,"土耳其","Euro","CIF","Feast","買進","訂金30%, BL 70%",2.1495,"已進口","全通路","1 FTL 20'","冷凍薯類/點心",130.5,0.0,102.76],["SP200001","冷凍","Feast楔型薯塊","Feast IQF WEDGE POTATO","1000g","8697343600022",10,80,720,"土耳其","Euro","CIF","Feast","買進","訂金30%, BL 70%",1.9034,"已進口","全通路","1 FTL 20'","冷凍薯類/點心",112.89,0.0,88.9],["SP200001","冷凍","Feast10*10mm 薯條","Feast IQF French Fries 10*10mm","1000g","8697343644255",10,64,720,"土耳其","Euro","CIF","Feast","買進","訂金30%, BL 70%",2.0511,"已進口","全通路","1 FTL 20'","冷凍薯類/點心",123.39,0.0,97.17],["SP200001","冷凍","Feast7*7mm超細薯條","FEAST IQF FRENCH FRIES 7*7mm","1000g","8697343600039",10,64,720,"土耳其","Euro","CIF","Feast","買進","訂金30%, BL 70%",2.1261,"已進口","全通路","1 FTL 20'","冷凍薯類/點心",115.95,0.0,91.31],["SP200001","冷凍","洋蔥圈","Feast IQF Onion Rings","450g","8697343650027",12,72,720,"土耳其","Euro","CIF","Feast","買進","訂金30%, BL 70%",1.2156,"已進口","全通路","1 FTL 20'","冷凍薯類/點心",68.43,0.0,53.89],["SP200001","冷凍","急速冷凍青花菜","IQF Feast Broccoli","500g","9697343550129",12,72,720,"土耳其","Euro","CIF","Feast","買進","訂金30%, BL 70%",1.3156,"已進口","全通路","1 FTL 20'","冷凍蔬果",73.29,0.0,57.72],["SP200001","冷凍","急速冷凍碗豆","IQF Feast Peas","450g","8697343550013",20,80,720,"土耳其","Euro","CIF","Feast","買進","訂金30%, BL 70%",0.933,"已進口","全通路","1 FTL 20'","冷凍蔬果",50.39,0.0,39.68],["SP200001","冷凍","急速冷凍切四季豆","IQF Feast Cut Green Beans","450g","9697343550020",16,80,720,"土耳其","Euro","CIF","Feast","買進","訂金30%, BL 70%",1.1131,"已進口","全通路","1 FTL 20'","冷凍蔬果",60.41,0.0,47.58],["SP200001","冷凍","辣味洋蔥圈","Feast IQF Spicy Onion Rings 12*450g","450g","",12,72,720,"土耳其","USD","CIF","Feast","買進","訂金30%, BL 70%",1.075,"已進口","全通路","1 FTL 20'","冷凍薯類/點心",61.59,0.0,48.5],["SP200001","冷凍","起司棒","Feast IQF Cheese Sticks 12*300g","300g","8697343111764",12,160,720,"土耳其","USD","CIF","Feast","買進","訂金30%, BL 70%",1.8375,"已進口","全通路","1 FTL 20'","冷凍薯類/點心",93.52,0.0,73.65],["SP200001","冷凍","可樂餅","Feast IQF Potato Croquette 12*300g","450g","8697343112150",16,80,720,"土耳其","USD","CIF","Feast","買進","訂金30%, BL 70%",0.9,"已進口","全通路","1 FTL 20'","冷凍薯類/點心",50.05,0.0,39.42],["SP200001","冷凍","玉米可樂餅","Feast IQF Corn PotatoCroquette 20*450g","450g","8697343112211",20,80,720,"土耳其","USD","CIF","Feast","買進","訂金30%, BL 70%",0.9875,"已進口","全通路","1 FTL 20'","冷凍薯類/點心",53.04,0.0,41.77],["SP200001","冷凍","薯餅","Feast IQF Hashbrowns 20-450g","450g","8697343112228",20,80,720,"土耳其","USD","CIF","Feast","買進","訂金30%, BL 70%",1.0125,"已進口","全通路","1 FTL 20'","冷凍薯類/點心",54.26,0.0,42.72],["SP200001","冷凍","急速冷凍鮮覆盆子","FEAST IQF RASPBERRY 8X350 GR","350 g","8697343550136",8,180,720,"土耳其","EURO","CIF","Feast","買進","訂金30%, BL 70%",5.065,"已進口","全通路","1 FTL 20'","冷凍蔬果",318.14,0.0,250.54],["SP200001","冷凍","急速冷凍鮮草莓","FEAST IQF STRAWBERRY 8X400 GR","400 g","8697343550150",8,180,720,"土耳其","EURO","CIF","Feast","買進","訂金30%, BL 70%",2.9025,"已進口","全通路","1 FTL 20'","冷凍蔬果",184.31,0.0,145.14],["SP200001","冷凍","急速冷凍鮮酸櫻桃","FEAST IQF SOUR CHERRY 8X400 GR","400 g","8697343550167",8,180,720,"土耳其","EURO","CIF","Feast","買進","訂金30%, BL 70%",4.4275,"已進口","全通路","1 FTL 20'","冷凍蔬果",278.69,0.0,219.47],["SP200001","冷凍","急速冷凍鮮黑莓","FEAST IQF BLACKBERRY 8X350 GR","350 g","8697343550143",8,180,720,"土耳其","EURO","CIF","Feast","買進","訂金30%, BL 70%",3.0525,"已進口","全通路","1 FTL 20'","冷凍蔬果",193.59,0.0,152.45],["SP200001","冷凍","急速冷凍綜合鮮莓果","FEAST IQF BLOOM (MIXED FRUITS)  8x350 g","350 g","8697343111870",8,180,720,"土耳其","EURO","CIF","Feast","買進","訂金30%, BL 70%",3.7775,"已進口","全通路","1 FTL 20'","冷凍蔬果",238.46,0.0,187.79],["SP200001","冷凍","急速冷凍藍莓","FEAST IQF BLUEBERRY 10X250GR","250 g","8697343112402",10,180,720,"土耳其","EURO","CIF","Feast","買進","訂金30%, BL 70%",3.0745,"已進口","全通路","1 FTL 20'","冷凍蔬果",194.02,0.0,152.79],["SP100010","冷凍","榛果義式冰淇淋","G7 Nocciolato","300g","800692083772",12,165,720,"義大利","Euro","CIF","G7","買進","訂金30%, BL 70%",1.65,"已進口","全通路","","冰淇淋",0,1.4774,0.0],["SP100010","冷凍","巧酥義式冰淇淋","G7 Stracciatella","300g","800692083796",12,165,720,"義大利","Euro","CIF","G7","買進","訂金30%, BL 70%",1.65,"已進口","全通路","","冰淇淋",0,1.4774,0.0],["SP200007","冷凍","Amazons4u Açaí 冰沙果泥 (含巴西莓)","Amazons4u Açaí Purée with Guaraná","待確認","",0,0,365,"巴西","USD","EXW","Amazons4u","收佣金","TDS清帳",0,"郵件新增","","","冷凍蔬果",0,0.0,0.0],["SP200008","冷凍","Gusto Sorrento 義大利冷凍Pizza","Gusto Sorrento Frozen Pizza","待確認","",0,0,365,"義大利","Euro","EXW","Gusto Sorrento","收佣金","TDS清帳",0,"郵件新增","PX Mart / 全通路","1 FTL 20'","冷凍Pizza",0,0.0,0.0],["SP200008","冷凍","Gusto Sorrento 番茄起司迷你披薩 2x150g","PIZZETTA Tomato & Mozzarella 2x150g","2x150g","",12,60,365,"義大利","Euro","FOB","Gusto Sorrento","收佣金","TDS清帳",2.006,"郵件新增","PX Mart / 全通路","1 FTL 20'","冷凍Pizza",0,1.785,0.0],["SP200008","冷凍","Gusto Sorrento 番茄起司披薩片 2x160g","TRANCIOTOTTO Tomato & Mozzarella 2x160g","2x160g","",12,63,365,"義大利","Euro","FOB","Gusto Sorrento","收佣金","TDS清帳",2.242,"郵件新增","PX Mart / 全通路","1 FTL 20'","冷凍Pizza",0,1.995,0.0],["SP200008","冷凍","Gusto Sorrento 烤蔬菜披薩片 2x185g","TRANCIOTOTTO Grilled Vegetables 2x185g","2x185g","",12,63,365,"義大利","Euro","FOB","Gusto Sorrento","收佣金","TDS清帳",2.301,"郵件新增","PX Mart / 全通路","1 FTL 20'","冷凍Pizza",0,2.0475,0.0],["SP200009","冷凍","森林莓雪酪","Menodiciotto Forest Berry Sorbet","不明","8032584931298",6,0,540,"義大利","Euro","EXW","Menodiciotto","買進","訂金30%, BL 70%",13.14,"已進口","","","冰淇淋",0,12.6,0.0],["SP200009","冷凍","百香果雪酪","Menodiciotto Passion Fruit Sorbet","不明","8032584931359",6,0,540,"義大利","Euro","EXW","Menodiciotto","買進","訂金30%, BL 70%",13.14,"已進口","","","冰淇淋",0,12.6,0.0],["SP200002","冷凍","迷你橄欖佛卡夏 110g","Olives Mini Focaccia 110g","110g","62459",36,55,365,"西班牙","Euro","CIF","Europastry","買進","BL 60天",1.3395,"郵件新增","星巴克","","冷凍烘焙",69.21,0.0,63.75],["SP200002","冷凍","迷你四起司佛卡夏 105g","4 Cheese Mini Focaccia 105g","105g","62451",36,55,365,"西班牙","Euro","CIF","Europastry","買進","BL 60天",1.3281,"郵件新增","星巴克","","冷凍烘焙",68.64,0.0,63.22],["SP200005","冷凍","韓國1KG冰塊(夾鏈袋)","Korean Clear Ice 1KG Zipper Bag","1KG","",10,50,540,"韓國","USD","CIF","韓國冰塊(NEXO)","買進","訂金30%, BL 70%",8.82,"郵件新增","家福","","冰塊",45,7.7175,37.57],["SP200005","冷凍","韓國500G冰塊(夾鏈袋)","Korean Clear Ice 500G Zipper Bag","500G","",18,50,540,"韓國","USD","CIF","韓國冰塊(NEXO)","買進","訂金30%, BL 70%",10.62,"郵件新增","家福","","冰塊",29,9.2925,23.94],["SP200005","冷凍","韓國500G冰塊(無夾鏈袋)","Korean Clear Ice 500G Plain Bag","500G","",18,50,540,"韓國","USD","CIF","韓國冰塊(NEXO)","買進","訂金30%, BL 70%",10.38,"郵件新增","家福","","冰塊",29,9.0825,23.53],["SP200005","冷凍","韓國冰塊杯(常規)","Korean Clear Ice Cup 180G","180G","",15,50,540,"韓國","USD","CIF","韓國冰塊(NEXO)","買進","訂金30%, BL 70%",4.6248,"郵件新增","家福","","冰塊",16,4.0467,12.81],["SP200005","冷凍","韓國威士忌冰球杯","Korean Whiskey Ball Ice Cup 130G","130G","",15,50,540,"韓國","USD","CIF","韓國冰塊(NEXO)","買進","訂金30%, BL 70%",11.8248,"郵件新增","家福","","冰塊",33,10.3467,27.56],["SP200005","冷凍","韓國1KG冰塊(夾鏈袋)","Korean Clear Ice 1KG Zipper Bag","1KG","",10,50,540,"韓國","USD","FOB","韓國冰塊(NEXO)","收佣金","TDS清帳",7.956,"郵件新增","美廉社","","冰塊",8.18,6.9615,0],["SP200005","冷凍","韓國500G冰塊(夾鏈袋)","Korean Clear Ice 500G Zipper Bag","500G","",18,50,540,"韓國","USD","FOB","韓國冰塊(NEXO)","收佣金","TDS清帳",9.7848,"郵件新增","美廉社","","冰塊",10.062,8.5617,0],["SP200005","冷凍","韓國500G冰塊(無夾鏈袋)","Korean Clear Ice 500G Plain Bag","500G","",18,50,540,"韓國","USD","FOB","韓國冰塊(NEXO)","收佣金","TDS清帳",9.5472,"郵件新增","美廉社","","冰塊",9.81,8.3538,0],["SP200005","冷凍","韓國冰塊杯(常規)","Korean Clear Ice Cup 180G","180G","",15,50,540,"韓國","USD","FOB","韓國冰塊(NEXO)","收佣金","TDS清帳",4.284,"郵件新增","美廉社","","冰塊",4.395,3.7485,0],["SP200005","冷凍","韓國威士忌冰球杯","Korean Whiskey Ball Ice Cup 130G","130G","",15,50,540,"韓國","USD","FOB","韓國冰塊(NEXO)","收佣金","TDS清帳",11.628,"郵件新增","美廉社","","冰塊",11.955,10.1745,0],["SP200006","冷凍","Di Biase 義大利急速冷凍鮮藍莓","Di Biase IQF Italian Fresh Blueberry","450g","",8,180,720,"義大利","Euro","CIF","Di Biase","買進","訂金30%, BL 70%",223.18,"郵件新增","家福","","冷凍水果",223.18,3.0051,175.76],["SP200006","冷凍","Di Biase 義大利急速冷凍綜合鮮莓果","Di Biase IQF Italian Fresh Mixed Berries","450g","",8,180,720,"義大利","Euro","CIF","Di Biase","買進","訂金30%, BL 70%",177.44,"郵件新增","家福","","冷凍水果",177.44,2.3751,139.73],["SP200006","冷凍","Di Biase 義大利急速冷凍覆盆莓","Di Biase IQF Italian Fresh Raspberry","1000g","",0,0,720,"義大利","Euro","EXW","Di Biase","買進","訂金30%, BL 70%",8.75,"郵件新增","家福","","冷凍水果",0.0,7.35,0.0],["SP200006","冷凍","Di Biase 義大利急速冷凍覆盆莓","Di Biase IQF Italian Fresh Raspberry","450g","",0,0,720,"義大利","Euro","EXW","Di Biase","買進","訂金30%, BL 70%",4.5,"郵件新增","家福","","冷凍水果",0.0,3.78,0.0],["SP200006","冷凍","Di Biase 義大利急速冷凍鮮藍莓","Di Biase IQF Italian Fresh Blueberry","1000g","",0,0,720,"義大利","Euro","EXW","Di Biase","買進","訂金30%, BL 70%",6.125,"郵件新增","家福","","冷凍水果",0.0,5.145,0.0],["SP200006","冷凍","Di Biase 義大利急速冷凍綜合森林莓果","Di Biase IQF Italian Fresh Mixed Forest Fruits","1000g","",0,0,720,"義大利","Euro","EXW","Di Biase","買進","訂金30%, BL 70%",5.25,"郵件新增","家福","","冷凍水果",0.0,4.41,0.0]];
+const CUSTS=[{"name":"星巴克","pay":"月結30天","opts":["月結30天"],"twd":true},{"name":"家福 (Carrefour)","pay":"月結65天","opts":["月結65天"],"twd":true},{"name":"台灣生活良好","pay":"BL 75天","opts":["BL 75天","50%訂單, 50% BL 60天"]},{"name":"美廉社","pay":"BL 60天","opts":["BL 60天","BL 45天"]},{"name":"東森","pay":"LC 90天","opts":["LC 90天"]},{"name":"桂冠","pay":"50%訂單, 50% BL 60天","opts":["50%訂單, 50% BL 60天"]}];
+const INCO=['EXW','FCA','FOB','CFR','CIF','DDP','DAP','CPT'];
+const PAYS=["T/T 30 days","T/T 60 days","T/T 90 days","L/C at sight","LC 90天","D/P","預付款","月結30天","月結45天","月結60天","月結65天","BL 45天","BL 60天","BL 75天","50%訂單, 50% BL 60天"];
+const FLAG={義大利:'🇮🇹',土耳其:'🇹🇷',馬來西亞:'🇲🇾',西班牙:'🇪🇸',泰國:'🇹🇭',印尼:'🇮🇩',中國:'🇨🇳',波蘭:'🇵🇱',德國:'🇩🇪',越南:'🇻🇳',巴西:'🇧🇷',菲律賓:'🇵🇭',澳洲:'🇦🇺'};
+let filtered=[],cart={},isTWD=false;
+const cv={ean:true,cq:true,cp:true,bbd:false,inc:true,pay:true,stat:false};
+
+function init(){
+  document.getElementById('pT').textContent=D.length;
+  const ctrs=[...new Set(D.map(r=>r[9]).filter(Boolean))].sort();
+  const sups=[...new Set(D.map(r=>r[12]).filter(Boolean))].sort();
+  const fc=document.getElementById('fctry'),fs=document.getElementById('fsup');
+  ctrs.forEach(c=>fc.add(new Option((FLAG[c]||'')+' '+c,c)));
+  sups.forEach(s=>fs.add(new Option(s,s)));
+}
+
+// ── 客戶選擇 ──
+// ── TWD / 外幣模式切換 ──
+function updateCurMode(){
+  const bar=document.getElementById('curModeBar');
+  if(isTWD){
+    bar.style.display='block';
+    document.getElementById('qcur').value='TWD';
+    document.getElementById('qcur').disabled=true;
+  } else {
+    bar.style.display='none';
+    document.getElementById('qcur').disabled=false;
+  }
+  // 切換客戶時，自動重設購物車各品項報價為對應底限
+  Object.keys(cart).forEach(idx=>{
+    const r=D[idx];
+    if(isTWD){
+      // TWD模式：有台幣底限用台幣底限，否則清空讓業務自行填
+      cart[idx].price = r[20]>0 ? r[20] : 0;
+    } else {
+      // 外幣模式：用外幣底限
+      cart[idx].price = r[15]>0 ? r[15] : 0;
+    }
+  });
+  if(Object.keys(cart).length) renCart();
+}
+
+function selCust(val){
+  const pc=document.getElementById('payChoice');
+  const of=document.getElementById('otherFields');
+
+  if(val==='__other__'){
+    // 其他：顯示手動輸入欄，隱藏其他
+    of.className='other-fields show';
+    pc.style.display='none';
+    isTWD=false;
+    updateCurMode();
+    document.getElementById('cl').value='';
+    document.getElementById('qpay').value='';
+    document.getElementById('otherName').value='';
+    document.getElementById('otherPay').value='';
+    document.getElementById('otherName').focus();
+    return;
+  }
+
+  // 隱藏其他輸入欄
+  of.className='other-fields';
+
+  const cust=CUSTS.find(c=>c.name===val);
+  // 設定 TWD 模式
+  isTWD = !!(cust&&cust.twd);
+  updateCurMode();
+
+  if(cust){
+    document.getElementById('cl').value=cust.name;
+    const pay=cust.opts[0];
+    document.getElementById('qpay').value=pay;
+    if(cust.opts.length>1){
+      pc.style.display='block';
+      pc.querySelectorAll('.opt').forEach((o,i)=>{
+        o.className='opt'+(i===0?' active':'');
+        o.textContent=cust.opts[i];
+        o.onclick=function(){pickPay(cust.opts[i],this);};
+      });
+    } else {
+      pc.style.display='none';
+    }
+    applyDefaultPay(pay);
+  } else {
+    // 空選項
+    pc.style.display='none';
+    document.getElementById('cl').value='';
+  }
+}
+
+// 其他客戶：同步名稱
+function syncOtherName(){
+  const v=document.getElementById('otherName').value;
+  document.getElementById('cl').value=v;
+}
+
+// 其他客戶：同步付款條件
+function syncOtherPay(){
+  const v=document.getElementById('otherPay').value;
+  document.getElementById('qpay').value=v;
+  applyDefaultPay(v);
+}
+
+function applyDefaultPay(pay){
+  // 同步所有已在購物車的品項
+  Object.keys(cart).map(Number).forEach(idx=>{cart[idx].pay=pay;});
+  if(Object.keys(cart).length)renCart();
+}
+
+function pickPay(pay,el){
+  document.getElementById('qpay').value=pay;
+  document.querySelectorAll('#payChoice .opt').forEach(o=>o.className='opt');
+  el.className='opt active';
+  applyDefaultPay(pay);
+}
+
+// ── 欄位開關 ──
+function togCol(col,show){
+  cv[col]=show;
+  [document.getElementById('h-'+col)].concat([...document.querySelectorAll('.c-'+col)])
+    .forEach(el=>{if(el)el.style.display=show?'':'none';});
+  document.getElementById('t-'+col).className='tgl'+(show?' on':'');
+}
+
+// ── 篩選 ──
+function fil(){
+  const q=document.getElementById('fq').value.toLowerCase();
+  const tp=document.getElementById('ftype').value;
+  const ct=document.getElementById('fctry').value;
+  const sp=document.getElementById('fsup').value;
+  const st=document.getElementById('fst').value;
+  filtered=[];
+  D.forEach((r,i)=>{
+    if(tp&&r[1]!==tp)return;
+    if(ct&&r[9]!==ct)return;
+    if(sp&&r[12]!==sp)return;
+    if(st&&r[16]!==st)return;
+    const ch=document.getElementById('fch').value;
+    if(ch&&!(r[17]||'').includes(ch))return;
+    const cat=document.getElementById('fcat')?.value||'';
+    if(cat&&(r[19]||'')!==cat)return;
+    if(q&&!(r[2]+r[3]+r[12]+r[5]).toLowerCase().includes(q))return;
+    filtered.push(i);
+  });
+  document.getElementById('fcnt').textContent=filtered.length+'/'+D.length;
+  renTable();
+}
+
+function sBadge(s){
+  if(s==='PX Mart提案')return'<span class="b bpx">PX</span>';
+  if(s==='郵件新增')return'<span class="b bml">郵件</span>';
+  return'';
+}
+
+// ── 產品表格 ──
+function renTable(){
+  const tb=document.getElementById('pb');tb.innerHTML='';
+  filtered.slice(0,300).forEach(i=>{
+    const r=D[i],inC=cart[i]!==undefined,mp=r[15];
+    const tr=document.createElement('tr');
+    tr.className='row'+(inC?' sel':'');tr.onclick=()=>togCart(i);
+    tr.innerHTML=
+      '<td><span class="b '+(r[1]==='冷凍'?'bf':'bn')+'">'+r[1]+'</span></td>'+
+      '<td><div style="font-weight:600;max-width:145px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+r[2]+'">'+r[2]+'</div>'+
+          '<div style="font-size:10px;color:#999;max-width:145px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+r[4]+' '+sBadge(r[16])+'</div></td>'+
+      '<td style="white-space:nowrap">'+r[4]+'</td>'+
+      '<td style="white-space:nowrap">'+(FLAG[r[9]]||'')+' '+(r[9]||'—')+'</td>'+
+      '<td style="white-space:nowrap;font-size:11px">'+r[12]+'</td>'+
+      '<td class="c-ean" style="font-family:monospace;font-size:10px;color:#666;'+(cv.ean?'':'display:none')+'">'+(r[5]||'—')+'</td>'+
+      '<td class="c-cq" style="text-align:right;'+(cv.cq?'':'display:none')+'">'+(r[6]||'—')+'</td>'+
+      '<td class="c-cp" style="text-align:right;'+(cv.cp?'':'display:none')+'">'+(r[7]||'—')+'</td>'+
+      '<td class="c-bbd" style="text-align:right;'+(cv.bbd?'':'display:none')+'">'+(r[8]||'—')+'</td>'+
+      '<td class="c-inc" style="'+(cv.inc?'':'display:none')+'">'+
+        (r[11]?'<span style="background:#EEF1F8;padding:1px 6px;border-radius:4px;font-size:10px;font-weight:700">'+r[11]+'</span>':'—')+
+      '</td>'+
+      '<td class="c-pay" style="font-size:10px;color:#555;'+(cv.pay?'':'display:none')+'">'+(r[14]||'—')+'</td>'+
+      '<td style="text-align:right">'+(mp>0?'<span class="mp">'+mp.toFixed(4)+'</span>':'<span class="mp-na">—</span>')+'</td>'+
+      '<td style="font-size:11px;color:#888">'+(r[10]||'—')+'</td>'+
+      '<td class="c-stat" style="'+(cv.stat?'':'display:none')+'">'+sBadge(r[16])+'</td>';
+    tb.appendChild(tr);
+  });
+  if(filtered.length>300){
+    const tr=document.createElement('tr');
+    tr.innerHTML='<td colspan="14" style="text-align:center;color:#aaa;padding:10px;font-style:italic">顯示前 300 筆，請篩選縮小（共 '+filtered.length+' 筆）</td>';
+    tb.appendChild(tr);
+  }
+}
+
+function getDefaultPay(){return document.getElementById('qpay').value||'T/T 30 days';}
+
+// ── 購物車 ──
+function togCart(idx){
+  if(cart[idx]!==undefined){delete cart[idx];}
+  else{const r=D[idx];const initPrice=isTWD&&r[20]>0?r[20]:(r[15]>0?r[15]:0);cart[idx]={qty:1,price:initPrice,inc:r[11]||'CIF',pay:getDefaultPay(),cur:r[10]||'USD'};}
+  renTable();renCart();
+}
+function rmCart(idx){delete cart[idx];renTable();renCart();}
+function updQ(idx,v){if(cart[idx])cart[idx].qty=parseInt(v)||1;renTotal();}
+function updP(idx,v){
+  if(!cart[idx])return;
+  cart[idx].price=parseFloat(v)||0;
+  const r=D[idx],mp=r[15]||0,c=cart[idx];const twdFloor=isTWD&&r[20]>0?r[20]:0;const isE=twdFloor>0?(c.price>0&&c.price<twdFloor):(!isTWD&&mp>0&&c.price>0&&c.price<mp);
+  const qi=document.getElementById('qi'+idx);
+  if(qi){
+    qi.className='qi'+(isE?' err':'');
+    const inp=qi.querySelectorAll('.qi-row input')[1];
+    if(inp)inp.className='iwp'+(isE?' err-inp':'');
+    let et=qi.querySelector('.qi-err');
+    if(isE){if(!et){et=document.createElement('div');et.className='qi-err';qi.appendChild(et);}et.textContent=twdFloor>0?('⚠ 不可低於台幣底限 NT$'+twdFloor.toFixed(0)):'⚠ 不可低於底限 '+mp.toFixed(4)+' '+(r[10]||'');}
+    else if(et)et.remove();
+  }
+  renTotal();
+}
+function updI(idx,v){if(cart[idx])cart[idx].inc=v;}
+function updPay(idx,v){if(cart[idx])cart[idx].pay=v;}
+
+function renCart(){
+  const keys=Object.keys(cart).map(Number);
+  document.getElementById('qcnt').textContent=keys.length;
+  const ql=document.getElementById('ql');
+  if(!keys.length){ql.innerHTML='<div class="empty">← 點擊左側產品列加入報價單</div>';renTotal();return;}
+  ql.innerHTML='';
+  keys.forEach(idx=>{
+    const r=D[idx],c=cart[idx],mp=r[15]||0;
+    const twdFloor=isTWD&&r[20]>0?r[20]:0;
+    const isE=twdFloor>0?(c.price>0&&c.price<twdFloor):(!isTWD&&mp>0&&c.price>0&&c.price<mp);
+    const div=document.createElement('div');
+    div.className='qi'+(isE?' err':'');div.id='qi'+idx;
+    const incoO=INCO.map(t=>'<option value="'+t+'"'+(c.inc===t?' selected':'')+'>'+t+'</option>').join('');
+    const payO=PAYS.map(t=>'<option value="'+t+'"'+(c.pay===t?' selected':'')+'>'+t+'</option>').join('');
+    // 如果購物車的付款條件不在下拉選單內（自訂輸入），用 input 顯示
+    const payInList=PAYS.includes(c.pay);
+    div.innerHTML=
+      '<button class="qi-rm" onclick="rmCart('+idx+')" title="移除">✕</button>'+
+      '<div class="qi-name">'+r[2]+'</div>'+
+      '<div class="qi-meta">'+
+        '<span class="tag">'+(FLAG[r[9]]||'')+' '+r[9]+'</span>'+
+        '<span class="tag">'+r[12]+'</span>'+
+        (r[4]?'<span class="tag">'+r[4]+'</span>':'')+
+        (r[6]?'<span class="tag">箱入 '+r[6]+'</span>':'')+
+        (r[18]?'<span class="tag" style="background:#FFF9E6;color:#856404">MOQ '+r[18]+'</span>':'')+(r[19]?'<span class="tag" style="background:#E8F5E9;color:#2E7D32">'+r[19]+'</span>':'')+
+        (r[7]?'<span class="tag">'+r[7]+' 箱/板</span>':'')+
+        (r[8]?'<span class="tag">BBD '+r[8]+'天</span>':'')+
+        '<span class="tag pay-tag">'+c.pay+'</span>'+
+      '</div>'+
+      '<div class="qi-row">'+
+        '<label>數量</label>'+
+        '<input type="number" class="iw" value="'+c.qty+'" min="1" placeholder="1" title="'+(r[6]>0?'每箱'+r[6]+'件':'')+'" onchange="updQ('+idx+',this.value)" oninput="updQ('+idx+',this.value)">'+
+        '<label>報價</label>'+
+        '<input type="number" class="iwp'+(isE?' err-inp':'')+'" value="'+(c.price||'')+'" step="0.01" placeholder="'+(twdFloor>0?twdFloor.toFixed(0):(mp>0?mp.toFixed(4):'請輸入'))+'" onchange="updP('+idx+',this.value)" oninput="updP('+idx+',this.value)">'+
+        '<span class="qi-cur" style="font-weight:600;color:'+(isTWD?'#185FA5':'#666')+'">'+(isTWD?'TWD':(r[10]||''))+'</span>'+
+        (isTWD&&r[20]>0?'<span class="qi-floor" style="color:#013121;font-weight:700">🔒 底限 NT$'+r[20].toFixed(0)+'</span>':(mp>0?'<span class="qi-floor">底限 '+mp.toFixed(4)+'</span>':'<span class="qi-floor" style="color:#bbb">成本待補</span>'))+
+      '</div>'+
+      '<div class="qi-row" style="margin-top:5px">'+
+        '<label>交易條件</label>'+
+        '<span style="background:#EEF1F8;padding:3px 10px;border-radius:5px;font-size:11px;font-weight:700;border:1px solid #dde2ec">'+c.inc+'</span>'+
+        (isTWD?'<span style="background:#E6F1FB;color:#185FA5;padding:3px 8px;border-radius:5px;font-size:10px;font-weight:600;margin-left:4px">TWD</span>':'<span style="background:#F5F5F5;color:#555;padding:3px 8px;border-radius:5px;font-size:10px;margin-left:4px">'+(r[10]||'')+'</span>')+
+        '<label>付款條件</label>'+
+        (payInList
+          ? '<select style="width:140px" onchange="updPay('+idx+',this.value)">'+payO+'</select>'
+          : '<input type="text" style="width:140px;text-align:left" value="'+c.pay+'" onchange="updPay('+idx+',this.value)" oninput="updPay('+idx+',this.value)">')+
+      '</div>'+
+      (isE?'<div class="qi-err">'+(twdFloor>0?'⚠ 不可低於台幣底限 NT$'+twdFloor.toFixed(0):'⚠ 不可低於底限 '+mp.toFixed(4)+' '+(r[10]||''))+'</div>':'');
+    ql.appendChild(div);
+  });
+  renTotal();
+}
+
+function renTotal(){
+  const keys=Object.keys(cart).map(Number);
+  const hasE=keys.some(idx=>{const r=D[idx],c=cart[idx],mp=r[15]||0;const twdF=isTWD&&r[20]>0?r[20]:0;return twdF>0?(c.price>0&&c.price<twdF):(!isTWD&&mp>0&&c.price>0&&c.price<mp);});
+  const cur=document.getElementById('qcur').value;
+  let totDisplay='—';
+  if(keys.length){
+    if(isTWD){
+      const tot=keys.reduce((s,idx)=>{const c=cart[idx];return s+(parseFloat(c.price)||0)*(parseInt(c.qty)||1);},0);
+      totDisplay='TWD '+tot.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+    } else {
+      // 依幣別分組加總
+      const byC={};
+      keys.forEach(idx=>{
+        const r=D[idx],c=cart[idx],cc=r[10]||'';
+        byC[cc]=(byC[cc]||0)+(parseFloat(c.price)||0)*(parseInt(c.qty)||1);
+      });
+      totDisplay=Object.entries(byC).map(([c,v])=>c+' '+v.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})).join(' + ');
+    }
+  }
+  document.getElementById('qt').textContent=totDisplay;
+  document.getElementById('pBtn').disabled=!keys.length||hasE;
+}
+
+function clrAll(){
+  if(!Object.keys(cart).length)return;
+  if(confirm('確定清除所有已選產品？')){cart={};renTable();renCart();}
+}
+
+function printQ(){
+  const keys=Object.keys(cart).map(Number);
+  const cl=document.getElementById('cl').value.trim();
+  if(!cl)return alert('請填寫客戶名稱');
+  const hasE=keys.some(idx=>{const r=D[idx],c=cart[idx],mp=r[15]||0;const twdF=isTWD&&r[20]>0?r[20]:0;return twdF>0?(c.price>0&&c.price<twdF):(!isTWD&&mp>0&&c.price>0&&c.price<mp);});
+  if(hasE)return alert('部分品項報價低於底限，請修正後再輸出。');
+  const cur=document.getElementById('qcur').value;
+  const days=parseInt(document.getElementById('qdays').value)||30;
+  const notes=document.getElementById('qnotes').value;
+  const today=new Date().toLocaleDateString('zh-TW');
+  const valid=new Date(Date.now()+days*86400000).toLocaleDateString('zh-TW');
+  const qNo='QT-'+new Date().getFullYear()+'-'+String(Math.floor(Math.random()*9000)+1000);
+  const rows=keys.map(idx=>{const r=D[idx],c=cart[idx],p=parseFloat(c.price)||0,q=parseInt(c.qty)||1;return{r,p,q,inc:c.inc,pay:c.pay,tot:+(p*q).toFixed(2)};});
+  const grand=rows.reduce((s,x)=>s+x.tot,0);
+  const w=window.open('','_blank','width=1050,height=760');
+  w.document.write(
+'<!DOCTYPE html><html><head><meta charset="UTF-8"><title>報價單 '+qNo+'</title>'+
+'<style>body{font-family:Arial,sans-serif;font-size:12px;padding:28px 36px;color:#111}'+
+'h2{color:#013121;font-size:17px;margin-bottom:2px}.co{color:#555;font-size:11px;margin-bottom:16px}'+
+'.meta{display:grid;grid-template-columns:repeat(3,1fr);gap:6px 20px;margin-bottom:16px;padding:10px 14px;background:#F8F9FC;border-radius:6px;border:1px solid #e5e9f0}'+
+'.mf{font-size:11px}.mf span{color:#888;display:block;font-size:10px;margin-bottom:1px}'+
+'table{width:100%;border-collapse:collapse;font-size:11px;margin-top:4px}'+
+'th{background:#013121;color:#fff;padding:6px 8px;text-align:left;font-size:10px;white-space:nowrap}'+
+'td{padding:5px 8px;border-bottom:1px solid #eee;vertical-align:top}tr:nth-child(even) td{background:#f9fafc}'+
+'.n{text-align:right}'+
+'.total{text-align:right;margin-top:10px;font-size:14px;font-weight:700;color:#013121;padding-top:8px;border-top:2px solid #013121}'+
+'.notes{margin-top:12px;font-size:11px;color:#555;padding:8px 12px;background:#FFF9E6;border-radius:4px}'+
+'.foot{margin-top:24px;font-size:10px;color:#aaa;display:flex;justify-content:space-between;border-top:1px solid #eee;padding-top:8px}'+
+'@media print{body{padding:16px 22px}}</style></head><body>'+
+'<h2>Golden Jade Terre Co., Ltd.</h2><div class="co">高玉企業有限公司 — 報價單 Quotation</div>'+
+'<div class="meta">'+
+'<div class="mf"><span>報價單號</span>'+qNo+'</div>'+
+'<div class="mf"><span>客戶 / Customer</span><strong>'+cl+'</strong></div>'+
+'<div class="mf"><span>報價日期</span>'+today+'</div>'+
+'<div class="mf"><span>有效期至</span>'+valid+'</div>'+
+'<div class="mf"><span>幣別</span>'+cur+'</div>'+
+'<div class="mf"><span>付款條件</span>'+document.getElementById('qpay').value+'</div>'+
+'</div>'+
+'<table><thead><tr>'+
+'<th>#</th><th>中文品名</th><th>英文品名</th><th>規格</th>'+
+'<th>供應商</th><th>生產國</th><th>合作模式</th>'+
+'<th>交易條件</th><th>付款條件</th>'+
+'<th class="n">箱入數</th><th class="n">每板箱數</th>'+
+'<th class="n">數量</th><th class="n">單價</th><th class="n">小計</th>'+
+'</tr></thead><tbody>'+
+rows.map((x,i)=>
+'<tr><td>'+(i+1)+'</td>'+
+'<td><strong>'+x.r[2]+'</strong></td>'+
+'<td style="color:#555">'+(x.r[3]||'-')+'</td>'+
+'<td>'+(x.r[4]||'-')+'</td>'+
+'<td>'+x.r[12]+'</td>'+
+'<td>'+(x.r[9]||'-')+'</td>'+
+'<td>'+(x.r[13]||'-')+'</td>'+
+'<td><strong>'+x.r[11]+'</strong></td>'+
+'<td style="font-size:10px;font-weight:700;color:#013121">'+x.pay+'</td>'+
+'<td class="n">'+(x.r[6]||'-')+'</td>'+
+'<td class="n">'+(x.r[7]||'-')+'</td>'+
+'<td class="n">'+x.q.toLocaleString()+'</td>'+
+'<td class="n">'+(isTWD?'TWD':(x.r[10]||''))+' '+x.p.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})+'</td>'+
+'<td class="n"><strong>'+(isTWD?'TWD':(x.r[10]||''))+' '+x.tot.toLocaleString(undefined,{minimumFractionDigits:2})+'</strong></td>'+
+'</tr>').join('')+
+'</tbody></table>'+
+(()=>{
+  if(isTWD){
+    return '<div class="total">Grand Total 總金額：TWD '+grand.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})+'</div>';
+  } else {
+    const byC2={};
+    rows.forEach(x=>{const cc=x.r[10]||'';byC2[cc]=(byC2[cc]||0)+x.tot;});
+    const totStr=Object.entries(byC2).map(([c,v])=>c+' '+v.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})).join(' + ');
+    return '<div class="total">Grand Total 總金額：'+totStr+'</div>';
+  }
+})()+
+(notes?'<div class="notes">備註 Remarks：'+notes+'</div>':'')+
+'<div class="foot"><span>Golden Jade Terre Co., Ltd. ｜ 高玉企業有限公司</span><span>'+qNo+' ｜ '+today+'</span></div>'+
+'<script>window.onload=function(){window.print();}<\/script></body></html>');
+  w.document.close();
+}
+
+// init() and fil() called via body onload
+
+// ─── 訂單模組 JS ───
+
+function switchTab(t){
+  document.getElementById('panelQ').classList.toggle('active', t==='Q');
+  document.getElementById('panelO').classList.toggle('active', t==='O');
+  document.getElementById('tabQ').classList.toggle('active', t==='Q');
+  document.getElementById('tabO').classList.toggle('active', t==='O');
+  if(t==='O') syncFromCart();
+}
+
+// 訂單資料（含成交價）
+let ordCart = {};  // {idx: {qty, price, cur}}
+
+function syncFromCart(){
+  // 重導向至 renderSimpleOrder（新簡潔介面）
+  renderSimpleOrder();
+}
+
+
+function renderOrdItems(){ renderSimpleOrder(); }
+
+
+function updOrdQty(idx, v){
+  if(!ordCart[idx]) ordCart[idx]={qty:1,price:0};
+  ordCart[idx].qty = parseInt(v)||1;
+  renderOrdItems();
+}
+
+function updOrdPrice(idx, v){
+  if(!ordCart[idx]) ordCart[idx]={qty:1,price:0};
+  ordCart[idx].price = parseFloat(v)||0;
+  renderOrdItems();
+}
+
+function rmOrdItem(idx){
+  delete ordCart[idx];
+  delete cart[idx];
+  renTable(); renCart(); renderOrdItems();
+}
+
+function doPrintOrder(){
+  const keys = Object.keys(cart).map(Number);
+  if(!keys.length){ alert('訂單尚無品項'); return; }
+
+  const cust = document.getElementById('ordCust').value || '（未填）';
+  const po   = document.getElementById('ordPO').value   || '—';
+  const date = document.getElementById('ordDate').value || new Date().toISOString().slice(0,10);
+  const ship = document.getElementById('ordShip').value || '—';
+  const pay  = document.getElementById('ordPay').value  || '—';
+  const note = document.getElementById('ordNote').value || '';
+
+  const totals = {};
+  let itemRows = '';
+  keys.forEach((idx,i)=>{
+    const r   = D[idx];
+    const oc  = ordCart[idx]||{qty:1,price:0};
+    const cur = isTWD?'TWD':(r[10]||'USD');
+    const mp  = isTWD&&r[20]>0?r[20]:(r[15]||0);
+    const sub = (oc.qty||1)*(oc.price||0);
+    const warn= mp>0&&oc.price>0&&oc.price<mp;
+    totals[cur]=(totals[cur]||0)+sub;
+    itemRows+=`<tr${warn?' style="background:#fff8f0"':''}>
+      <td>${i+1}</td>
+      <td><b>${r[2]}</b><br><span style="color:#777;font-size:10px">${r[3]||''}</span></td>
+      <td style="text-align:center">${r[4]||''}</td>
+      <td style="text-align:center">${r[5]||''}</td>
+      <td style="text-align:center">${oc.qty||1}</td>
+      <td style="text-align:center">${r[11]||''}</td>
+      <td style="text-align:right">${oc.price>0?oc.price.toFixed(2):'—'}</td>
+      <td style="text-align:center">${cur}</td>
+      <td style="text-align:right;font-weight:600">${sub>0?sub.toFixed(2):'—'}</td>
+      ${warn?'<td style="color:#e67e00;font-size:10px">⚠低於底限</td>':'<td></td>'}
+    </tr>`;
+  });
+
+  const totLine = Object.entries(totals).filter(([c,v])=>v>0)
+    .map(([c,v])=>`${c} <b>${v.toFixed(2)}</b>`).join('&nbsp;&nbsp;|&nbsp;&nbsp;');
+
+  const w = window.open('','_blank','width=900,height=700');
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8">
+  <title>訂單 ${cust} ${date}</title>
+  <style>
+    body{font-family:Arial,sans-serif;font-size:12px;padding:24px;color:#1a1a2e}
+    h2{color:#013121;font-size:16px;margin-bottom:4px}
+    .sub{color:#777;font-size:11px;margin-bottom:16px}
+    .meta{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:16px;
+          border:1px solid #dde;border-radius:6px;padding:10px;background:#f8f9fb}
+    .meta-item{font-size:11px}
+    .meta-item b{display:block;color:#013121;font-size:10px;margin-bottom:2px}
+    table{width:100%;border-collapse:collapse;font-size:11px}
+    th{background:#013121;color:#C9A84C;padding:6px 8px;text-align:left}
+    td{padding:5px 8px;border-bottom:1px solid #eee}
+    .tot{margin-top:12px;text-align:right;font-size:13px;padding:8px;background:#f0f4f0;border-radius:6px}
+    .note{margin-top:12px;padding:8px;border:1px solid #eee;border-radius:6px;font-size:11px;color:#555}
+    .footer{margin-top:24px;font-size:10px;color:#aaa;border-top:1px solid #eee;padding-top:8px}
+    @media print{body{padding:0} .no-print{display:none}}
+  </style></head><body>
+  <img src="${document.querySelector('img').src}" style="height:36px;margin-bottom:8px"><br>
+  <h2>採購訂單 Purchase Order</h2>
+  <div class="sub">高玉企業有限公司 Golden Jade Terre Co., Ltd.</div>
+  <div class="meta">
+    <div class="meta-item"><b>客戶名稱</b>${cust}</div>
+    <div class="meta-item"><b>PO 號碼</b>${po}</div>
+    <div class="meta-item"><b>訂單日期</b>${date}</div>
+    <div class="meta-item"><b>預計出貨</b>${ship}</div>
+    <div class="meta-item"><b>付款條件</b>${pay}</div>
+  </div>
+  <table>
+    <thead><tr><th>#</th><th>品名</th><th>規格</th><th>EAN</th><th>數量(箱)</th>
+      <th>交易條件</th><th>成交單價</th><th>幣別</th><th>小計</th><th></th></tr></thead>
+    <tbody>${itemRows}</tbody>
+  </table>
+  <div class="tot">合計：${totLine}</div>
+  ${note?`<div class="note"><b>備註：</b>${note}</div>`:''}
+  <div class="footer">此訂單由高玉企業業務報價系統產生 · ${new Date().toLocaleString('zh-TW')}</div>
+  <br><button class="no-print" onclick="window.print()" style="padding:8px 20px;background:#013121;color:#C9A84C;border:none;border-radius:6px;cursor:pointer;font-size:12px">🖨 列印</button>
+  </body></html>`);
+}
+
+function doExportCSV(){
+  const keys = Object.keys(cart).map(Number);
+  if(!keys.length){ alert('訂單尚無品項'); return; }
+  const cust = document.getElementById('ordCust').value||'';
+  const date = document.getElementById('ordDate').value||new Date().toISOString().slice(0,10);
+  let csv = '\uFEFF#,中文品名,英文品名,規格,EAN,數量(箱),交易條件,成交單價,幣別,小計\n';
+  keys.forEach((idx,i)=>{
+    const r=D[idx]; const oc=ordCart[idx]||{qty:1,price:0};
+    const cur=isTWD?'TWD':(r[10]||'USD');
+    const sub=(oc.qty||1)*(oc.price||0);
+    csv += [i+1,`"${r[2]}"`,`"${r[3]||''}"`,`"${r[4]||''}"`,r[5]||'',
+            oc.qty||1,r[11]||'',oc.price||'',cur,sub>0?sub.toFixed(2):''].join(',')+`\n`;
+  });
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download=`訂單_${cust}_${date}.csv`;
+  a.click();
+}
+
+
+// ─── 5% 利潤核准機制 ───
+const APPROVAL_CODES = {"2026-01": "EL3492AU", "2026-02": "LU9788SC", "2026-03": "LN2847NZ", "2026-04": "VW2645CJ", "2026-05": "MZ8893XZ", "2026-06": "YS6687MK", "2026-07": "FE8637UA", "2026-08": "YL5642UP", "2026-09": "KK2587KY", "2026-10": "BX5872JA", "2026-11": "UR9672FP", "2026-12": "VQ8485RH", "2027-01": "SL8393UX", "2027-02": "DH3232TE", "2027-03": "FS6234UK", "2027-04": "FA8584DN", "2027-05": "PM4552SK", "2027-06": "EQ7959GG", "2027-07": "MC3485PY", "2027-08": "UX8349BU", "2027-09": "VS2663YB", "2027-10": "XH6668JP", "2027-11": "QF9676ZS", "2027-12": "MN7894NA"};
+// 自動取當月授權碼
+function getApprovalCode(){
+  const now = new Date();
+  const key = now.getFullYear()+'-'+(now.getMonth()+1).toString().padStart(2,'0');
+  return APPROVAL_CODES[key] || 'EXPIRED';
+}
+
+function check5pct(){
+  // 檢查訂單中是否有低於 5% 利潤的品項
+  const keys = Object.keys(cart).map(Number);
+  const lowItems = [];
+  keys.forEach(idx=>{
+    const r  = D[idx];
+    const oc = ordCart[idx]||{qty:1,price:0};
+    if(!oc.price || oc.price<=0) return;
+
+    const floor5 = isTWD && r[22]>0 ? r[22] : r[21];  // 台幣or外幣5%底線
+    if(floor5>0 && oc.price < floor5){
+      lowItems.push({
+        name: r[2],
+        price: oc.price,
+        floor5: floor5,
+        margin: (((oc.price - floor5/1.05)/(floor5/1.05))*100).toFixed(1),
+        cur: isTWD?'TWD':(r[10]||''),
+      });
+    }
+  });
+  return lowItems;
+}
+
+function printOrder(){
+  const keys = Object.keys(cart).map(Number);
+  if(!keys.length){ alert('訂單尚無品項'); return; }
+
+  // 5% 核准檢查
+  const lowItems = check5pct();
+  if(lowItems.length > 0){
+    showApprovalModal(lowItems, ()=>{ doPrintOrder(); });
+    return;
+  }
+  doPrintOrder();
+}
+
+function exportOrderCSV(){
+  const keys = Object.keys(cart).map(Number);
+  if(!keys.length){ alert('訂單尚無品項'); return; }
+
+  const lowItems = check5pct();
+  if(lowItems.length > 0){
+    showApprovalModal(lowItems, ()=>{ doExportCSV(); });
+    return;
+  }
+  doExportCSV();
+}
+
+function showApprovalModal(lowItems, callback){
+  // 建立 modal
+  let existing = document.getElementById('approvalModal');
+  if(existing) existing.remove();
+
+  let itemList = lowItems.map(it=>
+    `<tr><td><b>${it.name}</b></td>
+     <td style="text-align:right;color:#c00">${it.cur} ${it.price.toFixed(2)}</td>
+     <td style="text-align:right;color:#e67e00">${it.cur} ${it.floor5.toFixed(2)}</td>
+     </tr>`
+  ).join('');
+
+  const modal = document.createElement('div');
+  modal.id = 'approvalModal';
+  modal.style.cssText = `position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;
+    display:flex;align-items:center;justify-content:center`;
+  modal.innerHTML = `
+    <div style="background:#fff;border-radius:10px;padding:24px;width:460px;max-width:95%;box-shadow:0 8px 32px rgba(0,0,0,.3)">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        <span style="font-size:24px">🔐</span>
+        <div>
+          <div style="font-weight:700;font-size:14px;color:#c00">需要主管授權</div>
+          <div style="font-size:11px;color:#777">以下品項利潤低於 5%，須輸入授權碼方可成立訂單</div>
+        </div>
+      </div>
+      <table style="width:100%;font-size:11px;border-collapse:collapse;margin-bottom:12px">
+        <thead><tr style="background:#fee">
+          <th style="padding:5px;text-align:left">品項</th>
+          <th style="padding:5px;text-align:right">成交價</th>
+          <th style="padding:5px;text-align:right">5%最低底線</th>
+        </tr></thead>
+        <tbody>${itemList}</tbody>
+      </table>
+      <div style="background:#fff8f0;border:1px solid #e67e00;border-radius:6px;padding:10px;margin-bottom:14px;font-size:11px;color:#a04000">
+        ⚠️ 此訂單利潤低於公司最低標準（5%），須主管同意授權後方能建立訂單。授權碼每月更新，請向主管索取。
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px">
+        <label style="font-size:12px;font-weight:600;white-space:nowrap;color:#333">主管授權碼：</label>
+        <input type="password" id="approvalInput" placeholder="請輸入授權碼"
+          style="flex:1;padding:8px 10px;border:1px solid #ccc;border-radius:6px;font-size:13px"
+          onkeydown="if(event.key==='Enter')submitApproval()">
+        <button onclick="submitApproval()"
+          style="padding:8px 14px;background:#013121;color:#C9A84C;border:none;border-radius:6px;font-weight:600;cursor:pointer;font-size:12px">
+          確認
+        </button>
+      </div>
+      <div id="approvalErr" style="color:#c00;font-size:11px;min-height:16px"></div>
+      <div style="display:flex;justify-content:flex-end;margin-top:8px">
+        <button onclick="document.getElementById('approvalModal').remove()"
+          style="padding:7px 16px;background:#eee;border:none;border-radius:6px;cursor:pointer;font-size:12px">
+          取消
+        </button>
+      </div>
+    </div>`;
+
+  // 儲存 callback
+  window._approvalCallback = callback;
+  document.body.appendChild(modal);
+  setTimeout(()=>document.getElementById('approvalInput').focus(), 100);
+}
+
+function submitApproval(){
+  const code = document.getElementById('approvalInput').value;
+  if(code === getApprovalCode()){
+    document.getElementById('approvalModal').remove();
+    window._approvalCallback && window._approvalCallback();
+  } else {
+    document.getElementById('approvalErr').textContent = '❌ 授權碼錯誤，請確認後重試';
+    document.getElementById('approvalInput').value = '';
+    document.getElementById('approvalInput').focus();
+  }
+}
+
+// ── 更新 renderOrdItems 加入 5% 底線顯示 ──
+const _origRenderOrdItems = renderOrdItems;
+renderOrdItems = function(){
+  const keys = Object.keys(cart).map(Number);
+  if(!keys.length){
+    const _oi=document.getElementById('ordItems'); if(_oi) _oi.innerHTML='<div class="ord-empty">報價單尚無品項</div>';
+    document.getElementById('ordTot').innerHTML='';
+    return;
+  }
+
+  let rows = '<table class="ord-table"><thead><tr>' +
+    '<th>中文品名</th><th>規格</th><th>數量(箱)</th><th>成交單價</th><th>幣別</th><th>小計</th><th></th>' +
+    '</tr></thead><tbody>';
+
+  const totals = {};
+  keys.forEach(idx=>{
+    const r   = D[idx];
+    const oc  = ordCart[idx] || {qty:1, price:0};
+    const mp  = isTWD && r[20]>0 ? r[20] : (r[15]||0);
+    const f5  = isTWD && r[22]>0 ? r[22] : r[21];    // 5% 底線
+    const cur = isTWD ? 'TWD' : (r[10]||'USD');
+    const warnFloor = mp>0 && oc.price>0 && oc.price < mp;
+    const warn5     = f5>0 && oc.price>0 && oc.price < f5;
+    const sub = (oc.qty||1) * (oc.price||0);
+
+    totals[cur] = (totals[cur]||0) + sub;
+
+    let priceNote = '';
+    if(warn5)       priceNote = `<div class="ord-warn" style="color:#c00;font-weight:700">🔐 低於5%底線 ${f5.toFixed(2)} — 需授權</div>`;
+    else if(warnFloor) priceNote = `<div class="ord-warn">⚠ 低於底限 ${mp.toFixed(2)}</div>`;
+
+    rows += `<tr>
+      <td><b>${r[2]}</b></td>
+      <td style="color:#777">${r[4]||''}</td>
+      <td><input type="number" class="ord-qty" min="1" value="${oc.qty||1}"
+          oninput="updOrdQty(${idx},this.value)"></td>
+      <td>
+        <input type="number" class="ord-pi${warn5?' warn':(warnFloor?' warn':'')}" 
+            style="${warn5?'border-color:#c00!important;background:#fff0f0':''}"
+            step="0.01" min="0" value="${oc.price||''}"
+            placeholder="${mp>0?mp.toFixed(2):'請輸入'}"
+            oninput="updOrdPrice(${idx},this.value)">
+        ${priceNote}
+      </td>
+      <td>${cur}</td>
+      <td style="text-align:right;font-weight:600">${sub>0?sub.toFixed(2):'—'}</td>
+      <td><span style="cursor:pointer;color:#c00;font-size:11px" onclick="rmOrdItem(${idx})">✕</span></td>
+    </tr>`;
+  });
+
+  rows += '</tbody></table>';
+  const _oi2=document.getElementById('ordItems'); if(_oi2) _oi2.innerHTML = rows;
+
+  let totHtml = '<b>訂單合計：</b>';
+  Object.entries(totals).forEach(([c,v])=>{ if(v>0) totHtml += ` &nbsp;<b>${c}</b> ${v.toFixed(2)}`; });
+  if(Object.values(totals).every(v=>v===0)) totHtml += ' <span style="color:#aaa">（請輸入成交單價）</span>';
+
+  // 5% 提示
+  const lowCount = Object.keys(cart).map(Number).filter(idx=>{
+    const r=D[idx]; const oc=ordCart[idx]||{qty:1,price:0};
+    const f5=isTWD&&r[22]>0?r[22]:r[21];
+    return f5>0&&oc.price>0&&oc.price<f5;
+  }).length;
+  if(lowCount>0) totHtml += `<br><span style="color:#c00;font-size:11px;font-weight:600">🔐 ${lowCount} 個品項低於 5% 利潤底線，送出訂單時需輸入主管授權碼</span>`;
+
+  const _tot=document.getElementById('ordTot'); if(_tot) _tot.innerHTML = totHtml;
+};
+
+
+// ─── 工作流程模組 ───
+
+function showWorkflow(){
+  const keys = Object.keys(cart).map(Number);
+  if(!keys.length){ alert('請先在報價單加入產品'); return; }
+
+  // 5% 核准檢查
+  const lowItems = check5pct();
+  if(lowItems.length > 0){
+    showApprovalModal(lowItems, ()=>{ buildWorkflow(); });
+    return;
+  }
+  buildWorkflow();
+}
+
+function buildWorkflow(){
+  const keys = Object.keys(cart).map(Number);
+  const cust = document.getElementById('ordCust').value || document.getElementById('cl').value || '（未填）';
+  const po   = document.getElementById('ordPO').value   || '—';
+  const date = document.getElementById('ordDate').value || new Date().toISOString().slice(0,10);
+  const ship = document.getElementById('ordShip').value || '—';
+  const pay  = document.getElementById('ordPay').value  || document.getElementById('qpay').value || '—';
+  const note = document.getElementById('ordNote').value || '';
+
+  // 整理品項摘要
+  const totals = {};
+  const suppliers = new Set();
+  let itemSummary = '';
+  keys.forEach((idx,i)=>{
+    const r=D[idx]; const oc=ordCart[idx]||{qty:1,price:0};
+    const cur=isTWD?'TWD':(r[10]||'USD');
+    const sub=(oc.qty||1)*(oc.price||0);
+    totals[cur]=(totals[cur]||0)+sub;
+    suppliers.add(r[12]);
+    itemSummary+=`• ${r[2]} × ${oc.qty||1}箱 @ ${oc.price>0?oc.price.toFixed(2):'—'} ${cur}<br>`;
+  });
+  const supList = [...suppliers].join('、');
+  const totLine = Object.entries(totals).filter(([c,v])=>v>0)
+    .map(([c,v])=>`${c} ${v.toFixed(2)}`).join(' + ');
+
+  // 判斷是否含冷凍品
+  const hasFrozen = keys.some(idx=>D[idx][1]==='冷凍');
+  const hasTWD    = isTWD;
+
+  const orderInfo = `
+    <div class="wf-order-info">
+      <b>客戶：</b>${cust} &nbsp;&nbsp;
+      <b>PO：</b>${po} &nbsp;&nbsp;
+      <b>訂單日：</b>${date}<br>
+      <b>預計出貨：</b>${ship} &nbsp;&nbsp;
+      <b>付款條件：</b>${pay}<br>
+      <b>供應商：</b>${supList}<br>
+      <b>金額合計：</b>${totLine||'（待填）'}<br>
+      ${itemSummary}
+    </div>`;
+
+  // ── 採購工作清單 ──
+  const purchTasks = [
+    {u:true,  t:'發出採購訂單 (PO)',         s:`確認供應商：${supList}`},
+    {u:false, t:'取得供應商 Proforma Invoice', s:'確認品名、規格、數量、單價、交期'},
+    {u:false, t:'確認供應商交貨/出貨日期',    s:`對應客戶預計出貨日：${ship}`},
+    {u:false, t:'確認包裝及中文標籤規格',     s:'檢查是否需要重新貼標/重新包裝'},
+    {u:false, t:'建立採購檔案',               s:'存 PI、PO、報價單至共用資料夾'},
+    {u:false, t:'追蹤供應商備貨進度',         s:'出貨前3週開始跟進'},
+    {u:false, t:'確認裝箱明細 (Packing List)',s:'核對箱數、重量、材積'},
+    {u:false, t:'收取 Bill of Lading / AWB',  s:'取得後立即通知財務及供應鏈'},
+  ];
+
+  // ── 財務工作清單 ──
+  const depositInfo = pay.includes('30%') ? '訂金30%，餘款BL copy後付' :
+                      pay.includes('50%') ? '訂金50%，餘款BL後14天付' :
+                      pay.includes('月結') ? `月結 — ${pay}` : pay;
+  const finTasks = [
+    {u:true,  t:'建立客戶訂單收款紀錄',      s:`客戶：${cust} | ${date}`},
+    {u:true,  t:'依付款條件安排訂金付款',    s:`條件：${depositInfo}`},
+    {u:false, t:'確認客戶信用額度',           s:'如超過信用額度，須先行回報'},
+    {u:false, t:'準備付款文件（電匯/LC）',   s:hasTWD?'客戶TWD，確認發票幣別':'確認幣別及匯率'},
+    {u:false, t:'追蹤訂金到帳',              s:'付款後取得水單，通知採購部'},
+    {u:false, t:'BL copy 到位後付尾款',      s:'依合約條件執行尾款付款'},
+    {u:false, t:'開立客戶銷售發票',          s:`${cust} | 金額：${totLine||'待確認'}`},
+    {u:false, t:'收款核對與對帳',            s:`付款條件：${pay}`},
+  ];
+
+  // ── 供應鏈工作清單 ──
+  const scTasks = [
+    {u:true,  t:'確認出貨港口及預計船期',    s:'取得供應商出貨計畫'},
+    {u:true,  t:'通知報關行準備進口文件',    s:'提供 PI、Packing List、預計到港日'},
+    {u:false, t:hasFrozen?'預約冷凍倉儲空間':'確認常溫倉儲空間',
+                                              s:hasFrozen?'提前2週確認冷凍倉位':'確認收貨日期及倉位'},
+    {u:false, t:'確認進口稅則及關稅',        s:'核對 HS Code 及稅率'},
+    {u:false, t:'追蹤船期/航班動態',         s:'到港前1週開始監控'},
+    {u:false, t:'安排卸貨及清關',            s:'協調報關行、倉儲、裝卸'},
+    {u:false, t:'入庫驗收及盤點',            s:'核對數量、規格、效期'},
+    {u:false, t:'通知業務及客戶到貨',        s:`${cust} | 安排客戶取貨/配送`},
+    {u:false, t:'更新庫存系統',              s:'記錄入庫日期、數量、批次'},
+  ];
+
+  function buildCard(dept, cls, icon, title, sub, tasks, orderInfo){
+    const taskHtml = tasks.map((t,i)=>`
+      <div class="wf-task${t.u?' urgent':''}">
+        <input type="checkbox" id="${cls}t${i}">
+        <label for="${cls}t${i}">
+          <b>${t.u?'🔴 ':''}${t.t}</b>
+          <span>${t.s}</span>
+        </label>
+      </div>`).join('');
+    return `
+      <div class="wf-card ${cls}">
+        <div class="wf-card-hdr">
+          <span class="wf-card-icon">${icon}</span>
+          <div><div class="wf-card-title">${title}</div>
+               <div class="wf-card-sub">${sub}</div></div>
+        </div>
+        ${orderInfo}
+        ${taskHtml}
+      </div>`;
+  }
+
+  // ── 建立 Modal ──
+  let existing = document.getElementById('wfModal');
+  if(existing) existing.remove();
+
+  const modal = document.createElement('div');
+  modal.id='wfModal';
+  modal.className='wf-modal-bg';
+  modal.innerHTML=`
+    <div class="wf-modal">
+      <div class="wf-modal-hdr">
+        <div class="wf-modal-title">🔄 訂單工作流程 — ${cust} | ${date}</div>
+        <button class="wf-close" onclick="document.getElementById('wfModal').remove()">✕</button>
+      </div>
+      <div class="wf-grid">
+        ${buildCard('採購','purch','🛒','採購流程','採購部門工作清單',purchTasks,orderInfo)}
+        ${buildCard('財務','finance','💰','財務流程','財務部門工作清單',finTasks,orderInfo)}
+        ${buildCard('供應鏈','supply','🚢','供應鏈流程','供應鏈/物流部門工作清單',scTasks,orderInfo)}
+      </div>
+      <div class="wf-print-bar">
+        <button class="wf-print-btn purch"   onclick="printWF('採購','purch')">🖨 列印 採購清單</button>
+        <button class="wf-print-btn finance"  onclick="printWF('財務','finance')">🖨 列印 財務清單</button>
+        <button class="wf-print-btn supply"   onclick="printWF('供應鏈','supply')">🖨 列印 供應鏈清單</button>
+        <button class="wf-print-btn all"      onclick="printWF('全部','all')">🖨 列印全部</button>
+      </div>
+      <div style="text-align:center;font-size:10px;color:#aaa;margin-top:10px">
+        🔴 = 優先處理 | 勾選項目不影響儲存，列印後請使用紙本追蹤進度
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+  // 儲存資料供列印用
+  window._wfData = {cust,po,date,ship,pay,note,purchTasks,finTasks,scTasks,orderInfo,totLine,supList};
+}
+
+function printWF(dept, cls){
+  const d = window._wfData;
+  const taskSets = {
+    purch:   {color:'#2ecc71', icon:'🛒', title:'採購部門工作清單', tasks:d.purchTasks},
+    finance: {color:'#3498db', icon:'💰', title:'財務部門工作清單', tasks:d.finTasks},
+    supply:  {color:'#e67e22', icon:'🚢', title:'供應鏈部門工作清單',tasks:d.scTasks},
+  };
+
+  const sets = cls==='all'
+    ? [taskSets.purch, taskSets.finance, taskSets.supply]
+    : [taskSets[cls]];
+
+  const cardsHtml = sets.map(s=>`
+    <div style="break-inside:avoid;margin-bottom:24px;border-top:5px solid ${s.color};
+      border-radius:8px;padding:16px;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.1)">
+      <h3 style="margin:0 0 8px;color:#1a1a2e;font-size:15px">${s.icon} ${s.title}</h3>
+      ${d.orderInfo}
+      <table style="width:100%;border-collapse:collapse;font-size:11px">
+        ${s.tasks.map((t,i)=>`
+        <tr style="${t.u?'background:#fff8f0':''}">
+          <td style="width:24px;text-align:center;padding:5px 4px">
+            <input type="checkbox"> </td>
+          <td style="padding:5px 4px">
+            <b style="${t.u?'color:#c00':''}">${t.u?'🔴 ':''}${t.t}</b><br>
+            <span style="color:#888;font-size:10px">${t.s}</span>
+          </td>
+        </tr>`).join('')}
+      </table>
+    </div>`).join('');
+
+  const w = window.open('','_blank','width=900,height=750');
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8">
+  <title>工作流程 ${dept} — ${d.cust} ${d.date}</title>
+  <style>
+    body{font-family:Arial,sans-serif;font-size:12px;padding:24px;color:#1a1a2e;background:#f4f6fa}
+    h2{color:#013121;margin-bottom:4px}
+    .sub{color:#777;font-size:11px;margin-bottom:20px}
+    @media print{body{background:#fff;padding:0} .no-print{display:none}}
+  </style></head><body>
+  <img src="${document.querySelector('img').src}" style="height:32px;margin-bottom:6px"><br>
+  <h2>🔄 訂單工作流程 — ${dept==='all'?'全部部門':dept+'部門'}</h2>
+  <div class="sub">客戶：${d.cust} | PO：${d.po} | 訂單日：${d.date} | 預計出貨：${d.ship}</div>
+  ${cardsHtml}
+  <div style="margin-top:16px;font-size:10px;color:#aaa;border-top:1px solid #eee;padding-top:8px">
+    產生時間：${new Date().toLocaleString('zh-TW')} | 高玉企業有限公司
+  </div>
+  <br><button class="no-print" onclick="window.print()" 
+    style="padding:8px 20px;background:#013121;color:#C9A84C;border:none;border-radius:6px;cursor:pointer">
+    🖨 列印</button>
+  </body></html>`);
+}
+
+
+// ─── 匯出彙整表資料 ───
+function exportForSummary(){
+  const keys = Object.keys(cart).map(Number);
+  if(!keys.length){ alert('請先加入產品'); return; }
+
+  const lowItems = check5pct();
+  if(lowItems.length > 0){
+    showApprovalModal(lowItems, ()=>{ doExportSummary(); });
+    return;
+  }
+  doExportSummary();
+}
+
+function doExportSummary(){
+  const keys = Object.keys(cart).map(Number);
+  const cust   = document.getElementById('ordCust').value || document.getElementById('cl').value || '';
+  const gjPO   = document.getElementById('ordPO').value   || '';
+  const custPO = document.getElementById('ordCustPO').value || '';
+  const date   = document.getElementById('ordDate').value || new Date().toISOString().slice(0,10);
+  const ship   = document.getElementById('ordShip').value || '';
+  const pay    = document.getElementById('ordPay').value  || document.getElementById('qpay').value || '';
+  const note   = document.getElementById('ordNote').value || '';
+  const sales  = (document.getElementById('ordSales')?.value || '').trim();
+  const confirmed = !!document.getElementById('ordConfirm')?.checked;
+
+  if(!cust.trim()){ alert('請填寫客戶名稱'); return; }
+  if(!custPO.trim()){ alert('請填寫客戶訂單編號'); return; }
+  if(!sales){ alert('請填寫業務姓名'); return; }
+  if(!confirmed){ alert('請先勾選訂單確認聲明'); return; }
+
+  const items = keys.map(idx=>{
+    const r  = D[idx];
+    const oc = ordCart[idx]||{qty:1,price:0};
+    const cur= isTWD?'TWD':(r[10]||'');
+    return {
+      name:        r[2],
+      englishName: r[3]||'',
+      ean:         r[5]||'',
+      supplier:    r[12]||'',
+      supCode:     r[0]||'',
+      origin:      r[9]||'',
+      category:    r[19]||'',
+      currency:    cur,
+      supIncoterm: r[11]||'',
+      custIncoterm:r[11]||'',
+      supPayment:  r[14]||'',
+      qty:         oc.qty||1,
+      agreedPrice: oc.price||0,
+      minPrice:    r[15]||0,
+      minPriceTWD: r[20]||0,
+      unitsPerCarton: r[6]||1,
+      totalAgreed: (oc.qty||1)*(r[6]||1)*(oc.price||0),
+    };
+  });
+
+  const payload = {
+    _version:   '1.1',
+    _exported:  new Date().toISOString(),
+    _workflow: {
+      status: 'pending_tina_import',
+      visibility: 'tina_only',
+      confirmedBy: sales,
+      confirmedAt: new Date().toISOString(),
+      importInstruction: 'Only Tina/Codex may import this file into 訂單彙整表2605.xlsx'
+    },
+    gjPO,
+    custPO,
+    customer:   cust,
+    orderDate:  date,
+    shipDate:   ship,
+    custPayment:pay,
+    salesOwner: sales,
+    isTWD,
+    note,
+    items
+  };
+
+  saveOrderAgg(payload);
+
+  const blob = new Blob([JSON.stringify(payload,null,2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `訂單_${cust}_${date}.json`;
+  a.click();
+
+  // 顯示下一步說明
+  alert('✅ 訂單上傳檔已下載！\n\n請將此 JSON 檔交給 Tina 或上傳到 Tina 指定的位置。\n\n注意：業務端不會、也不能直接寫入或查看訂單彙整表；只有 Tina/Codex 會把此檔匯入私人總表。');
+}
+
+
+// ─── 業務端本機客戶訂單彙整 ───
+const ORDER_AGG_KEY = 'goldenjade_order_uploads_v1';
+
+function getOrderAgg(){
+  try{
+    const raw = localStorage.getItem(ORDER_AGG_KEY);
+    const list = raw ? JSON.parse(raw) : [];
+    return Array.isArray(list) ? list : [];
+  }catch(_e){ return []; }
+}
+
+function setOrderAgg(list){
+  localStorage.setItem(ORDER_AGG_KEY, JSON.stringify(list));
+}
+
+function orderAggId(order){
+  return [
+    order.customer||'',
+    order.custPO||'',
+    order.orderDate||'',
+    order.salesOwner||order._workflow?.confirmedBy||'',
+    (order.items||[]).map(i=>`${i.name}:${i.qty}:${i.agreedPrice}`).join('|')
+  ].join('::');
+}
+
+function normalizeOrderAgg(order){
+  if(!order || !Array.isArray(order.items)) return null;
+  const wf = order._workflow || {};
+  return {
+    ...order,
+    _version: order._version || '1.0',
+    _workflow: {
+      status: wf.status || 'pending_tina_import',
+      visibility: wf.visibility || 'tina_only',
+      confirmedBy: wf.confirmedBy || order.salesOwner || '',
+      confirmedAt: wf.confirmedAt || order._exported || new Date().toISOString(),
+      importInstruction: wf.importInstruction || 'Only Tina/Codex may import this file into 訂單彙整表2605.xlsx'
+    },
+    salesOwner: order.salesOwner || wf.confirmedBy || ''
+  };
+}
+
+function saveOrderAgg(order){
+  const normalized = normalizeOrderAgg(order);
+  if(!normalized) return;
+  const list = getOrderAgg();
+  const id = orderAggId(normalized);
+  const next = list.filter(item => orderAggId(item) !== id);
+  next.push(normalized);
+  setOrderAgg(next);
+  renderOrderAgg();
+}
+
+function moneyAgg(order){
+  const totals = {};
+  (order.items||[]).forEach(item=>{
+    const cur = item.currency || '';
+    const amount = Number(item.totalAgreed || 0);
+    if(cur && amount) totals[cur] = (totals[cur]||0) + amount;
+  });
+  return Object.entries(totals).map(([cur,val]) => `${cur} ${val.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}`).join(' / ') || '—';
+}
+
+function selectedAggOrders(){
+  const customer = document.getElementById('orderAggCustomer')?.value || '';
+  return getOrderAgg().filter(order => !customer || order.customer === customer);
+}
+
+function renderOrderAgg(){
+  const select = document.getElementById('orderAggCustomer');
+  const tbody = document.getElementById('orderAggBody');
+  const stats = document.getElementById('orderAggStats');
+  if(!select || !tbody || !stats) return;
+
+  const all = getOrderAgg().sort((a,b)=>String(b.orderDate||'').localeCompare(String(a.orderDate||'')));
+  const current = select.value;
+  const customers = [...new Set(all.map(o=>o.customer).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'zh-Hant'));
+  select.innerHTML = '<option value="">全部客戶</option>' + customers.map(c=>`<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+  if(customers.includes(current)) select.value = current;
+
+  const rows = selectedAggOrders();
+  const itemCount = rows.reduce((sum,o)=>sum+(o.items||[]).length,0);
+  const customersLabel = select.value || '全部客戶';
+  stats.textContent = rows.length ? `${customersLabel}：${rows.length} 張訂單，${itemCount} 個品項。此彙整只供業務端查看，私人總表仍由 Tina/Codex 匯入。` : '尚無訂單紀錄';
+
+  if(!rows.length){
+    tbody.innerHTML = '<tr><td colspan="7" class="so-empty">尚無訂單紀錄。請先確認並產生上傳檔，或匯入訂單 JSON。</td></tr>';
+    return;
+  }
+  tbody.innerHTML = rows.map(order=>`
+    <tr>
+      <td>${escapeHtml(order.orderDate||'')}</td>
+      <td><b>${escapeHtml(order.customer||'')}</b></td>
+      <td>${escapeHtml(order.custPO||'')}</td>
+      <td>${escapeHtml(order.salesOwner||order._workflow?.confirmedBy||'')}</td>
+      <td style="text-align:right">${(order.items||[]).length}</td>
+      <td style="font-family:monospace">${escapeHtml(moneyAgg(order))}</td>
+      <td>${escapeHtml(order._workflow?.status||'pending_tina_import')}</td>
+    </tr>`).join('');
+}
+
+function escapeHtml(value){
+  return String(value ?? '').replace(/[&<>"']/g, ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+}
+
+async function importOrderAggFiles(files){
+  if(!files || !files.length) return;
+  let ok = 0, bad = 0;
+  for(const file of files){
+    try{
+      const text = await file.text();
+      const order = normalizeOrderAgg(JSON.parse(text));
+      if(!order) throw new Error('not order json');
+      saveOrderAgg(order);
+      ok += 1;
+    }catch(_e){ bad += 1; }
+  }
+  alert(`匯入完成：成功 ${ok} 檔，失敗 ${bad} 檔`);
+  renderOrderAgg();
+}
+
+function exportOrderAggCSV(){
+  const rows = selectedAggOrders();
+  if(!rows.length){ alert('目前沒有可匯出的訂單彙整'); return; }
+  const header = ['訂單日','客戶','客戶PO','高玉PO','業務','品項數','金額彙總','狀態'];
+  const lines = [header, ...rows.map(o=>[
+    o.orderDate||'',
+    o.customer||'',
+    o.custPO||'',
+    o.gjPO||'',
+    o.salesOwner||o._workflow?.confirmedBy||'',
+    (o.items||[]).length,
+    moneyAgg(o),
+    o._workflow?.status||'pending_tina_import'
+  ])].map(cols=>cols.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(','));
+  const blob = new Blob(['\ufeff'+lines.join('\n')], {type:'text/csv;charset=utf-8'});
+  const a = document.createElement('a');
+  const customer = document.getElementById('orderAggCustomer')?.value || '全部客戶';
+  a.href = URL.createObjectURL(blob);
+  a.download = `客戶訂單彙整_${customer}_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+}
+
+function clearOrderAgg(){
+  if(!confirm('確定清除這台裝置/瀏覽器內保存的訂單彙整紀錄？已下載的 JSON 不會被刪除。')) return;
+  setOrderAgg([]);
+  renderOrderAgg();
+}
+
+
+// ─── 簡潔訂單模組 JS ───
+
+// 切換到訂單 tab 時自動同步
+const _origSwitchTab = switchTab;
+switchTab = function(t){
+  _origSwitchTab(t);
+  if(t==='O'){
+    // 自動帶入客戶名稱
+    const cl = document.getElementById('cl');
+    if(cl && cl.value && !document.getElementById('ordCust').value)
+      document.getElementById('ordCust').value = cl.value;
+    // 自動設今天日期
+    if(!document.getElementById('ordDate').value)
+      document.getElementById('ordDate').value = new Date().toISOString().slice(0,10);
+    renderSimpleOrder();
+  }
+};
+
+function renderSimpleOrder(){
+  const keys = Object.keys(cart).map(Number);
+  const tbody = document.getElementById('soBody');
+  const totEl = document.getElementById('soTotal');
+  if(!keys.length){
+    tbody.innerHTML='<tr><td colspan="8" class="so-empty">請先在「報價單」加入產品，再切換此分頁</td></tr>';
+    totEl.innerHTML='總金額：<span>—</span>';
+    return;
+  }
+
+  // 同步 ordCart
+  keys.forEach(idx=>{
+    if(!ordCart[idx]) ordCart[idx]={qty:cart[idx].qty||1, price:cart[idx].price||0};
+  });
+
+  const totals={};
+  let rows='';
+  keys.forEach(idx=>{
+    const r  = D[idx];
+    const oc = ordCart[idx]||{qty:1,price:0};
+    const cur= isTWD?'TWD':(r[10]||'');
+    const ctnU = r[6]||1;
+    const sub  = (oc.qty||1) * ctnU * (oc.price||0);
+
+    totals[cur]=(totals[cur]||0)+sub;
+
+    // 底線檢查
+    const mp  = isTWD&&r[20]>0?r[20]:(r[15]||0);
+    const f5  = isTWD&&r[22]>0?r[22]:r[21];
+    const warn5   = f5>0&&oc.price>0&&oc.price<f5;
+    const warnFlr = !warn5&&mp>0&&oc.price>0&&oc.price<mp;
+
+    let warnHtml='';
+    if(warn5)    warnHtml=`<div class="so-warn-row auth">🔐 低於5%底線 ${f5.toFixed(2)} — 需授權</div>`;
+    else if(warnFlr) warnHtml=`<div class="so-warn-row floor">⚠ 低於底限 ${mp.toFixed(2)}</div>`;
+
+    rows+=`<tr>
+      <td style="font-family:monospace;font-size:10px;color:#777">${r[5]||'—'}</td>
+      <td><b>${r[2]}</b></td>
+      <td style="color:#777;font-size:10px">${r[3]||''}</td>
+      <td style="text-align:right">
+        <input class="so-pi${warn5?' err':warnFlr?' warn':''}"
+          type="number" step="0.01" value="${oc.price||''}"
+          placeholder="${mp>0?mp.toFixed(2):'—'}"
+          oninput="updSO_price(${idx},this.value)">
+        ${warnHtml}
+      </td>
+      <td style="font-size:11px">${cur}</td>
+      <td style="text-align:right">
+        <input class="so-qty" type="number" min="1" value="${oc.qty||1}"
+          oninput="updSO_qty(${idx},this.value)">
+      </td>
+      <td style="text-align:right;font-weight:700;font-family:monospace">
+        ${sub>0?sub.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}):'—'}
+      </td>
+      <td><span style="cursor:pointer;color:#c00;font-size:12px" onclick="rmSOItem(${idx})">✕</span></td>
+    </tr>`;
+  });
+  tbody.innerHTML=rows;
+
+  // 合計
+  let totStr='總金額：';
+  const parts=Object.entries(totals).filter(([c,v])=>v>0);
+  if(parts.length){
+    totStr+=parts.map(([c,v])=>`<b>${c}</b> ${v.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}`).join(' ＋ ');
+  } else {
+    totStr+='<span>請輸入單價</span>';
+  }
+  // 5% 警示
+  const authCount=keys.filter(idx=>{
+    const r=D[idx]; const oc=ordCart[idx]||{};
+    const f5=isTWD&&r[22]>0?r[22]:r[21];
+    return f5>0&&oc.price>0&&oc.price<f5;
+  }).length;
+  if(authCount) totStr+=` &nbsp;<span style="color:#c00;font-size:11px">🔐 ${authCount}項需授權</span>`;
+  totEl.innerHTML=totStr;
+}
+
+function updSO_price(idx,v){
+  if(!ordCart[idx]) ordCart[idx]={qty:1,price:0};
+  ordCart[idx].price=parseFloat(v)||0;
+  cart[idx].price=ordCart[idx].price;
+  renderSimpleOrder();
+}
+function updSO_qty(idx,v){
+  if(!ordCart[idx]) ordCart[idx]={qty:1,price:0};
+  ordCart[idx].qty=parseInt(v)||1;
+  cart[idx].qty=ordCart[idx].qty;
+  renderSimpleOrder();
+}
+function rmSOItem(idx){
+  delete ordCart[idx]; delete cart[idx];
+  renTable(); renCart(); renderSimpleOrder();
+}
+
+function printSimpleOrder(){
+  const keys=Object.keys(cart).map(Number);
+  if(!keys.length){alert('請先加入產品');return;}
+  const low=check5pct();
+  if(low.length>0){showApprovalModal(low,()=>doPrintSimple());return;}
+  doPrintSimple();
+}
+
+function doPrintSimple(){
+  const keys=Object.keys(cart).map(Number);
+  const cust   =document.getElementById('ordCust').value||'（未填）';
+  const custPO =document.getElementById('ordCustPO').value||'—';
+  const gjPO   =document.getElementById('ordPO').value||'';
+  const date   =document.getElementById('ordDate').value||new Date().toISOString().slice(0,10);
+  const po     =custPO;  // 主要 PO 用客戶訂單編號
+
+  const totals={};
+  let itemRows='';
+  keys.forEach((idx,i)=>{
+    const r=D[idx]; const oc=ordCart[idx]||{qty:1,price:0};
+    const cur=isTWD?'TWD':(r[10]||'');
+    const ctnU=r[6]||1;
+    const sub=(oc.qty||1)*ctnU*(oc.price||0);
+    totals[cur]=(totals[cur]||0)+sub;
+    itemRows+=`<tr>
+      <td>${i+1}</td>
+      <td style="font-family:monospace;color:#666;font-size:10px">${r[5]||'—'}</td>
+      <td><b>${r[2]}</b></td>
+      <td style="color:#555">${r[3]||''}</td>
+      <td style="text-align:right">${oc.price>0?oc.price.toFixed(2):'—'}</td>
+      <td style="text-align:center">${cur}</td>
+      <td style="text-align:center">${oc.qty||1}</td>
+      <td style="text-align:right;font-weight:700">${sub>0?sub.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2}):'—'}</td>
+    </tr>`;
+  });
+
+  const totLine=Object.entries(totals).filter(([c,v])=>v>0)
+    .map(([c,v])=>`<b>${c}</b> ${v.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2})}`).join('　');
+
+  const w=window.open('','_blank','width=860,height=700');
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8">
+  <title>訂單 ${cust} ${date}</title>
+  <style>
+    *{box-sizing:border-box}
+    body{font-family:Arial,sans-serif;font-size:12px;padding:28px;color:#1a1a2e}
+    h2{color:#013121;margin:0 0 3px}
+    .sub{color:#888;font-size:11px;margin-bottom:16px}
+    .info{display:flex;gap:24px;margin-bottom:18px;background:#f8f9fb;
+          padding:10px 14px;border-radius:8px;font-size:12px}
+    .info b{display:block;font-size:10px;color:#013121;margin-bottom:2px}
+    table{width:100%;border-collapse:collapse;font-size:11px}
+    th{background:#013121;color:#C9A84C;padding:7px 9px;text-align:left}
+    td{padding:6px 9px;border-bottom:1px solid #eee}
+    .tot{margin-top:14px;text-align:right;font-size:14px;font-weight:700;
+         padding:10px 14px;background:#f0f4f0;border-radius:6px}
+    .footer{margin-top:20px;font-size:10px;color:#aaa;padding-top:8px;border-top:1px solid #eee}
+    @media print{body{padding:12px}.no-print{display:none}}
+  </style></head><body>
+  <img src="${document.querySelector('img').src}" style="height:34px;margin-bottom:8px"><br>
+  <h2>銷售訂單 Sales Order</h2>
+  <div class="sub">高玉企業有限公司 Golden Jade Terre Co., Ltd.</div>
+  <div class="info">
+    <div><b>客戶名稱</b>${cust}</div>
+    <div><b style="color:#c00">客戶訂單編號</b><span style="font-weight:700;color:#c00;font-size:13px">${custPO}</span></div>
+    ${gjPO?'<div><b>高玉訂單號碼</b>'+gjPO+'</div>':''}
+    <div><b>交　　期</b>${date}</div>
+  </div>
+  <table>
+    <thead><tr>
+      <th>#</th><th>EAN 條碼</th><th>中文品名</th><th>英文品名</th>
+      <th style="text-align:right">單價</th><th>幣別</th>
+      <th style="text-align:center">數量(箱)</th>
+      <th style="text-align:right">小計</th>
+    </tr></thead>
+    <tbody>${itemRows}</tbody>
+  </table>
+  <div class="tot">總金額：${totLine}</div>
+  <div class="footer">產生時間：${new Date().toLocaleString('zh-TW')} ｜ 高玉企業有限公司</div>
+  <br><button class="no-print" onclick="window.print()"
+    style="padding:8px 20px;background:#013121;color:#C9A84C;border:none;border-radius:6px;cursor:pointer;font-size:12px">
+    🖨 列印</button>
+  </body></html>`);
+}
+
+</script>
+</body>
+</html>
